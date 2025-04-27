@@ -1,19 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
-import {
-  ClientSideRowModelModule,
-  ValidationModule,
-  ModuleRegistry,
-} from "ag-grid-community";
-
-import "ag-grid-community/styles/ag-theme-alpine.css";
-
-// Zarejestruj wymagane moduły
-ModuleRegistry.registerModules([ClientSideRowModelModule, ValidationModule]);
+import Link from "next/link";
 
 interface Kontrahent {
+  id: number;
   nazwa_kontrahenta: string;
 }
 
@@ -25,14 +16,16 @@ interface Umowa {
   czy_wymaga_kontynuacji: boolean;
   wymagana_data_zawarcia_kolejnej_umowy: string | null;
   czy_spelnia_wymagania_dora: boolean;
-  kontrahent: Kontrahent;
+  kontrahent: Kontrahent | null;
 }
 
 export default function Home() {
   const [rowData, setRowData] = useState<Umowa[]>([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/api/umowy/")
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
+
+    fetch(apiUrl)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Błąd podczas pobierania danych");
@@ -43,53 +36,39 @@ export default function Home() {
       .catch((error) => console.error("Fetch error:", error));
   }, []);
 
-  const columnDefs = [
-    { headerName: "Numer", field: "numer", sortable: true, filter: true },
-    {
-      headerName: "Przedmiot",
-      field: "przedmiot",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Data zawarcia",
-      field: "data_zawarcia",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Czy wymaga kontynuacji",
-      field: "czy_wymaga_kontynuacji",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Wymagana data nowej umowy",
-      field: "wymagana_data_zawarcia_kolejnej_umowy",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Czy spełnia DORA",
-      field: "czy_spelnia_wymagania_dora",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Kontrahent",
-      field: "kontrahent.nazwa_kontrahenta",
-      sortable: true,
-      filter: true,
-    },
-  ];
-
   return (
-    <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        domLayout="autoHeight"
-      />
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Lista umów</h1>
+        <Link href="/nowa-umowa">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Dodaj nową umowę
+          </button>
+        </Link>
+      </div>
+
+      <table className="min-w-full bg-white border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border px-4 py-2">Numer</th>
+            <th className="border px-4 py-2">Przedmiot</th>
+            <th className="border px-4 py-2">Data zawarcia</th>
+            <th className="border px-4 py-2">Kontrahent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rowData.map((umowa) => (
+            <tr key={umowa.id}>
+              <td className="border px-4 py-2">{umowa.numer}</td>
+              <td className="border px-4 py-2">{umowa.przedmiot}</td>
+              <td className="border px-4 py-2">{umowa.data_zawarcia}</td>
+              <td className="border px-4 py-2">
+                {umowa.kontrahent ? umowa.kontrahent.nazwa_kontrahenta : "-"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
