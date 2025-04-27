@@ -44,17 +44,45 @@ export default function Home() {
   }, []);
 
   const columnDefs = [
-    { headerName: "Numer", field: "numer" },
-    { headerName: "Przedmiot", field: "przedmiot" },
-    { headerName: "Data zawarcia", field: "data_zawarcia" },
-    { headerName: "Czy wymaga kontynuacji", field: "czy_wymaga_kontynuacji" },
+    { headerName: "Numer", field: "numer", sortable: true, filter: true },
+    {
+      headerName: "Przedmiot",
+      field: "przedmiot",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Data zawarcia",
+      field: "data_zawarcia",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Czy wymaga kontynuacji",
+      field: "czy_wymaga_kontynuacji",
+      sortable: true,
+      filter: true,
+    },
     {
       headerName: "Wymagana data nowej umowy",
       field: "wymagana_data_zawarcia_kolejnej_umowy",
+      sortable: true,
+      filter: true,
     },
-    { headerName: "Czy spełnia DORA", field: "czy_spelnia_wymagania_dora" },
-    { headerName: "Kontrahent", field: "kontrahent.nazwa_kontrahenta" },
+    {
+      headerName: "Czy spełnia DORA",
+      field: "czy_spelnia_wymagania_dora",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Kontrahent",
+      field: "kontrahent.nazwa_kontrahenta",
+      sortable: true,
+      filter: true,
+    },
   ];
+
   return (
     <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
       <AgGridReact
