@@ -1,7 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { AgGridReact } from "ag-grid-react";
+// import { ClientSideRowModelModule, ValidationModule } from "ag-grid-community";
+import {
+  ClientSideRowModelModule,
+  ValidationModule,
+  TextFilterModule,
+  DateFilterModule,
+  TextEditorModule,
+  DateEditorModule,
+  SelectEditorModule,
+} from "ag-grid-community";
+
+// import "ag-grid-community/styles/ag-grid.css";
+// import "ag-grid-community/styles/ag-theme-quartz.css";
 
 interface Kontrahent {
   id: number;
@@ -21,20 +35,91 @@ interface Umowa {
 
 export default function Home() {
   const [rowData, setRowData] = useState<Umowa[]>([]);
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
+
+  const fetchData = useCallback(() => {
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then(setRowData)
+      .catch((err) => console.error(err));
+  }, [apiUrl]);
 
   useEffect(() => {
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
+    fetchData();
+  }, [fetchData]);
 
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Błąd podczas pobierania danych");
-        }
-        return response.json();
-      })
-      .then((data) => setRowData(data))
-      .catch((error) => console.error("Fetch error:", error));
-  }, []);
+  const onCellValueChanged = useCallback(
+    (params: any) => {
+      fetch(`${apiUrl}${params.data.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params.data),
+      }).catch((err) => {
+        console.error(err);
+        alert("Wystąpił błąd podczas zapisywania zmian");
+        fetchData();
+      });
+    },
+    [apiUrl, fetchData]
+  );
+
+  const colDefs = [
+    {
+      headerName: "Numer",
+      field: "numer",
+      sortable: true,
+      filter: true,
+      editable: true,
+    },
+    {
+      headerName: "Przedmiot",
+      field: "przedmiot",
+      sortable: true,
+      filter: true,
+      editable: true,
+    },
+    {
+      headerName: "Data zawarcia",
+      field: "data_zawarcia",
+      sortable: true,
+      filter: "agDateColumnFilter",
+      editable: true,
+      cellEditor: "agDateStringCellEditor",
+    },
+    {
+      headerName: "Czy wymaga kontynuacji",
+      field: "czy_wymaga_kontynuacji",
+      sortable: true,
+      filter: true,
+      editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: { values: [true, false] },
+    },
+    {
+      headerName: "Wymagana data kolejnej umowy",
+      field: "wymagana_data_zawarcia_kolejnej_umowy",
+      sortable: true,
+      filter: "agDateColumnFilter",
+      editable: true,
+      cellEditor: "agDateStringCellEditor",
+    },
+    {
+      headerName: "Czy spełnia wymagania DORA",
+      field: "czy_spelnia_wymagania_dora",
+      sortable: true,
+      filter: true,
+      editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: { values: [true, false] },
+    },
+    {
+      headerName: "Kontrahent",
+      field: "kontrahent.nazwa_kontrahenta",
+      sortable: true,
+      filter: true,
+      editable: false,
+    },
+  ];
 
   return (
     <div className="p-4">
@@ -47,28 +132,30 @@ export default function Home() {
         </Link>
       </div>
 
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2">Numer</th>
-            <th className="border px-4 py-2">Przedmiot</th>
-            <th className="border px-4 py-2">Data zawarcia</th>
-            <th className="border px-4 py-2">Kontrahent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rowData.map((umowa) => (
-            <tr key={umowa.id}>
-              <td className="border px-4 py-2">{umowa.numer}</td>
-              <td className="border px-4 py-2">{umowa.przedmiot}</td>
-              <td className="border px-4 py-2">{umowa.data_zawarcia}</td>
-              <td className="border px-4 py-2">
-                {umowa.kontrahent ? umowa.kontrahent.nazwa_kontrahenta : "-"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div
+        className="ag-theme-quartz"
+        style={{ height: "500px", width: "100%" }}
+      >
+        <AgGridReact
+          modules={[
+            ClientSideRowModelModule,
+            ValidationModule,
+            TextFilterModule,
+            DateFilterModule,
+            TextEditorModule,
+            DateEditorModule,
+            SelectEditorModule,
+          ]}
+          rowData={rowData}
+          columnDefs={colDefs}
+          defaultColDef={{
+            flex: 1,
+            minWidth: 120,
+            resizable: true,
+          }}
+          onCellValueChanged={onCellValueChanged}
+        />
+      </div>
     </div>
   );
 }
