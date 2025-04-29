@@ -44,12 +44,6 @@ export default function Home() {
       .catch((err) => console.error(err));
   }, [apiUrl]);
   
-useEffect(() => {
-  if (rowData.length > 0) {
-    console.log(rowData[0]);
-  }
-}, [rowData]);
-  
   useEffect(() => {
     fetchData();
   }, [fetchData]);
