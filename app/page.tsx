@@ -12,6 +12,7 @@ import {
   TextEditorModule,
   DateEditorModule,
   SelectEditorModule,
+  CellValueChangedEvent,
 } from "ag-grid-community";
 
 interface Kontrahent {
@@ -40,13 +41,13 @@ export default function Home() {
       .then(setRowData)
       .catch((err) => console.error(err));
   }, [apiUrl]);
-  
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   const onCellValueChanged = useCallback(
-    (params: any) => {
+    (params: CellValueChangedEvent<Umowa>) => {
       fetch(`${apiUrl}${params.data.id}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
