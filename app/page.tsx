@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AgGridReact } from "ag-grid-react";
-// import { ClientSideRowModelModule, ValidationModule } from "ag-grid-community";
 import {
   ClientSideRowModelModule,
   ValidationModule,
@@ -13,6 +12,7 @@ import {
   DateEditorModule,
   SelectEditorModule,
   CellValueChangedEvent,
+  ColDef,
 } from "ag-grid-community";
 
 interface Kontrahent {
@@ -61,19 +61,19 @@ export default function Home() {
     [apiUrl, fetchData]
   );
 
-  const colDefs = [
+  const colDefs: ColDef<Umowa>[] = [
     {
       headerName: "Numer",
       field: "numer",
       sortable: true,
-      filter: true,
+      filter: "agTextColumnFilter",
       editable: true,
     },
     {
       headerName: "Przedmiot",
       field: "przedmiot",
       sortable: true,
-      filter: true,
+      filter: "agTextColumnFilter",
       editable: true,
     },
     {
@@ -88,7 +88,7 @@ export default function Home() {
       headerName: "Czy wymaga kontynuacji",
       field: "czy_wymaga_kontynuacji",
       sortable: true,
-      filter: true,
+      filter: true, // Defaults to agTextColumnFilter
       editable: true,
       cellEditor: "agSelectCellEditor",
       cellEditorParams: { values: [true, false] },
@@ -105,7 +105,7 @@ export default function Home() {
       headerName: "Czy spełnia wymagania DORA",
       field: "czy_spelnia_wymagania_dora",
       sortable: true,
-      filter: true,
+      filter: true, // Defaults to agTextColumnFilter
       editable: true,
       cellEditor: "agSelectCellEditor",
       cellEditorParams: { values: [true, false] },
@@ -114,7 +114,7 @@ export default function Home() {
       headerName: "Kontrahent",
       field: "kontrahent.nazwa_kontrahenta",
       sortable: true,
-      filter: true,
+      filter: "agTextColumnFilter",
       editable: false,
     },
   ];
