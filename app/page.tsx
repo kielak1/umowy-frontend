@@ -43,7 +43,13 @@ export default function Home() {
       .then(setRowData)
       .catch((err) => console.error(err));
   }, [apiUrl]);
-
+  
+useEffect(() => {
+  if (rowData.length > 0) {
+    console.log(rowData[0]);
+  }
+}, [rowData]);
+  
   useEffect(() => {
     fetchData();
   }, [fetchData]);
