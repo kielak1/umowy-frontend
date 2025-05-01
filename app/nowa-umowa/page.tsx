@@ -7,6 +7,15 @@ interface Kontrahent {
   id: number;
   nazwa_kontrahenta: string;
 }
+interface User {
+  id: number;
+  username: string;
+}
+
+interface OrganizationalUnit {
+  id: number;
+  name: string;
+}
 
 export default function NowaUmowa() {
   const router = useRouter();
@@ -17,22 +26,36 @@ export default function NowaUmowa() {
   const [wymaganaDataNowejUmowy, setWymaganaDataNowejUmowy] = useState("");
   const [czySpelniaDora, setCzySpelniaDora] = useState(false);
   const [kontrahenci, setKontrahenci] = useState<Kontrahent[]>([]);
-  const [wybranyKontrahent, setWybranyKontrahent] = useState<number | null>(
-    null
-  );
+  const [wybranyKontrahent, setWybranyKontrahent] = useState<number | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [units, setUnits] = useState<OrganizationalUnit[]>([]);
+  const [opiekunId, setOpiekunId] = useState<number | null>(null);
+  const [orgUnitId, setOrgUnitId] = useState<number | null>(null);
 
   useEffect(() => {
     const kontrahenciUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/kontrahenci/`;
-
     fetch(kontrahenciUrl)
       .then((response) => response.json())
       .then((data) => setKontrahenci(data));
   }, []);
 
+  useEffect(() => {
+    const usersUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/users/`;
+    const unitsUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/orgunits/`;
+
+    fetch(usersUrl)
+      .then((res) => res.json())
+      .then(setUsers);
+
+    fetch(unitsUrl)
+      .then((res) => res.json())
+      .then(setUnits);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!wybranyKontrahent) {
-      alert("Wybierz kontrahenta");
+    if (!wybranyKontrahent || !opiekunId || !orgUnitId) {
+      alert("Uzupełnij wszystkie wymagane pola (kontrahent, opiekun, jednostka).");
       return;
     }
 
@@ -44,6 +67,8 @@ export default function NowaUmowa() {
       wymagana_data_zawarcia_kolejnej_umowy: wymaganaDataNowejUmowy || null,
       czy_spelnia_wymagania_dora: czySpelniaDora,
       kontrahent_id: wybranyKontrahent,
+      opiekun_id: opiekunId,
+      org_unit_id: orgUnitId,
     };
 
     const umowyUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
@@ -111,6 +136,7 @@ export default function NowaUmowa() {
           />
           <label>Czy spełnia wymagania DORA?</label>
         </div>
+
         <select
           value={wybranyKontrahent || ""}
           onChange={(e) => setWybranyKontrahent(Number(e.target.value))}
@@ -126,6 +152,39 @@ export default function NowaUmowa() {
             </option>
           ))}
         </select>
+
+        <select
+          value={opiekunId || ""}
+          onChange={(e) => setOpiekunId(Number(e.target.value))}
+          className="border p-2 w-full"
+          required
+        >
+          <option value="" disabled>
+            Wybierz opiekuna
+          </option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.username}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={orgUnitId || ""}
+          onChange={(e) => setOrgUnitId(Number(e.target.value))}
+          className="border p-2 w-full"
+          required
+        >
+          <option value="" disabled>
+            Wybierz jednostkę organizacyjną
+          </option>
+          {units.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name}
+            </option>
+          ))}
+        </select>
+
         <button
           type="submit"
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"

@@ -19,6 +19,15 @@ interface Kontrahent {
   id: number;
   nazwa_kontrahenta: string;
 }
+interface User {
+  id: number;
+  username: string;
+}
+
+interface OrganizationalUnit {
+  id: number;
+  name: string;
+}
 
 interface Umowa {
   id: number;
@@ -29,6 +38,10 @@ interface Umowa {
   wymagana_data_zawarcia_kolejnej_umowy: string | null;
   czy_spelnia_wymagania_dora: boolean;
   kontrahent: Kontrahent | null;
+  opiekun: User | null;
+  opiekun_id?: number;
+  org_unit: OrganizationalUnit | null;
+  org_unit_id?: number;
 }
 
 export default function Home() {
@@ -117,12 +130,24 @@ export default function Home() {
       filter: "agTextColumnFilter",
       editable: false,
     },
+    {
+      headerName: "Opiekun",
+      field: "opiekun.username",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      editable: false,
+    },
+    {
+      headerName: "Jednostka organizacyjna",
+      field: "org_unit.name",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      editable: false,
+    },
   ];
 
   return (
     <div className="p-4">
-
-
       <div
         className="ag-theme-quartz"
         style={{ height: "800px", width: "100%" }}
