@@ -10,8 +10,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Umowy",
-  description: "Umowy",
+  title: "Orca",
+  description: "Procesy zarządcze",
 };
 
 export default function RootLayout({
