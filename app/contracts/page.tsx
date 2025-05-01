@@ -1,0 +1,152 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { AgGridReact } from "ag-grid-react";
+import {
+  ClientSideRowModelModule,
+  ValidationModule,
+  TextFilterModule,
+  DateFilterModule,
+  TextEditorModule,
+  DateEditorModule,
+  SelectEditorModule,
+  CellValueChangedEvent,
+  ColDef,
+} from "ag-grid-community";
+
+interface Kontrahent {
+  id: number;
+  nazwa_kontrahenta: string;
+}
+
+interface Umowa {
+  id: number;
+  numer: string;
+  przedmiot: string;
+  data_zawarcia: string;
+  czy_wymaga_kontynuacji: boolean;
+  wymagana_data_zawarcia_kolejnej_umowy: string | null;
+  czy_spelnia_wymagania_dora: boolean;
+  kontrahent: Kontrahent | null;
+}
+
+export default function Home() {
+  const [rowData, setRowData] = useState<Umowa[]>([]);
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
+
+  const fetchData = useCallback(() => {
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then(setRowData)
+      .catch((err) => console.error(err));
+  }, [apiUrl]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const onCellValueChanged = useCallback(
+    (params: CellValueChangedEvent<Umowa>) => {
+      fetch(`${apiUrl}${params.data.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params.data),
+      }).catch((err) => {
+        console.error(err);
+        alert("Wystąpił błąd podczas zapisywania zmian");
+        fetchData();
+      });
+    },
+    [apiUrl, fetchData]
+  );
+
+  const colDefs: ColDef<Umowa>[] = [
+    {
+      headerName: "Numer",
+      field: "numer",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      editable: true,
+    },
+    {
+      headerName: "Przedmiot",
+      field: "przedmiot",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      editable: true,
+    },
+    {
+      headerName: "Data zawarcia",
+      field: "data_zawarcia",
+      sortable: true,
+      filter: "agDateColumnFilter",
+      editable: true,
+      cellEditor: "agDateStringCellEditor",
+    },
+    {
+      headerName: "Czy wymaga kontynuacji",
+      field: "czy_wymaga_kontynuacji",
+      sortable: true,
+      filter: true, // Defaults to agTextColumnFilter
+      editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: { values: [true, false] },
+    },
+    {
+      headerName: "Wymagana data kolejnej umowy",
+      field: "wymagana_data_zawarcia_kolejnej_umowy",
+      sortable: true,
+      filter: "agDateColumnFilter",
+      editable: true,
+      cellEditor: "agDateStringCellEditor",
+    },
+    {
+      headerName: "Czy spełnia wymagania DORA",
+      field: "czy_spelnia_wymagania_dora",
+      sortable: true,
+      filter: true, // Defaults to agTextColumnFilter
+      editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: { values: [true, false] },
+    },
+    {
+      headerName: "Kontrahent",
+      field: "kontrahent.nazwa_kontrahenta",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      editable: false,
+    },
+  ];
+
+  return (
+    <div className="p-4">
+
+
+      <div
+        className="ag-theme-quartz"
+        style={{ height: "800px", width: "100%" }}
+      >
+        <AgGridReact
+          modules={[
+            ClientSideRowModelModule,
+            ValidationModule,
+            TextFilterModule,
+            DateFilterModule,
+            TextEditorModule,
+            DateEditorModule,
+            SelectEditorModule,
+          ]}
+          rowData={rowData}
+          columnDefs={colDefs}
+          defaultColDef={{
+            flex: 1,
+            minWidth: 120,
+            resizable: true,
+          }}
+          onCellValueChanged={onCellValueChanged}
+        />
+      </div>
+    </div>
+  );
+}
