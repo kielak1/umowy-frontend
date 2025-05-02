@@ -2,7 +2,6 @@ import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import { Umowa } from "./types";
 import UmowaDetails from "../UmowaDetails";
 
-// Rozszerzony typ z opcjonalnym polem _expanded
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
 }
@@ -18,9 +17,7 @@ export const buildColDefs = ({
     headerName: "",
     width: 80,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
-      // Bezpiecznik: brak danych lub to jest wiersz _inline => nie pokazuj przycisku
       if (!data || data._expanded === "inline") return null;
-
       const { id, _expanded } = data;
       const isExpanded = !!_expanded;
 
@@ -30,27 +27,22 @@ export const buildColDefs = ({
           onClick={() => {
             setRowData((prev) => {
               const updated: UmowaWithExpanded[] = [];
-
               for (const row of prev) {
-                // zwijamy inne otwarte
                 if (row._expanded === "inline") continue;
-
                 if (row.id === id) {
                   const now = { ...row, _expanded: !isExpanded };
                   updated.push(now);
-
                   if (!isExpanded) {
                     updated.push({
                       ...row,
                       id: -id,
-                      _expanded: "inline",
+                      _expanded: "inline" as const,
                     });
                   }
                 } else {
                   updated.push({ ...row, _expanded: false });
                 }
               }
-
               return updated;
             });
           }}
@@ -77,28 +69,16 @@ export const buildColDefs = ({
     filter: "agTextColumnFilter",
     editable: true,
   },
-  {
-    headerName: "Ramowa",
-    field: "czy_ramowa",
-    filter: "agSetColumnFilter",
-    editable: true,
-  },
+  { headerName: "Ramowa", field: "czy_ramowa", editable: true },
   {
     headerName: "Dot. usługi",
     field: "czy_dotyczy_konkretnych_uslug",
-    filter: "agSetColumnFilter",
     editable: true,
   },
-  {
-    headerName: "Spełnia DORA",
-    field: "czy_spelnia_dora",
-    filter: "agSetColumnFilter",
-    editable: true,
-  },
+  { headerName: "Spełnia DORA", field: "czy_spelnia_dora", editable: true },
   {
     headerName: "Wymaga kontynuacji",
     field: "czy_wymaga_kontynuacji",
-    filter: "agSetColumnFilter",
     editable: true,
   },
   {
@@ -120,7 +100,7 @@ export const buildColDefs = ({
   {
     headerName: "Waluta",
     field: "najnowsza_zmiana.waluta",
-    filter: "agSetColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "Kontrahent",
