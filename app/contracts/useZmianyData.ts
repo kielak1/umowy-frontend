@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { ZmianaUmowy } from "./grid/types";
+import type { CellValueChangedEvent } from "ag-grid-community";
 
 export function useZmianyData(umowaId: number) {
   const [rowData, setRowData] = useState<ZmianaUmowy[]>([]);
@@ -19,13 +20,16 @@ export function useZmianyData(umowaId: number) {
   }, [fetchData]);
 
   const onCellValueChanged = useCallback(
-    (params: any) => {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${params.data.id}/`, {
+    (params: CellValueChangedEvent<ZmianaUmowy>) => {
+      const { id } = params.data;
+      if (!id) return;
+
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${id}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params.data),
       })
-        .then(() => fetchData())
+        .then(fetchData)
         .catch(console.error);
     },
     [fetchData]
