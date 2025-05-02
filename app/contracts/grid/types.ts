@@ -11,6 +11,8 @@ export interface OrganizationalUnit {
   name: string;
 }
 export interface ZmianaUmowy {
+  id: number;
+  rodzaj: string;
   data_zawarcia: string;
   kwota_netto: string;
   waluta: string;
@@ -31,12 +33,11 @@ export interface Umowa {
 }
 
 export interface Zamowienie {
-    id: number;
-    numer_zamowienia: string;
-    data_zlozenia: string;
-    data_realizacji: string | null;
-    kwota_netto: string;
-    waluta: string;
-    opis: string;
-  }
-  
+  id: number;
+  numer_zamowienia: string;
+  data_zlozenia: string;
+  data_realizacji: string | null;
+  kwota_netto: string;
+  waluta: string;
+  opis: string;
+}

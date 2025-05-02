@@ -19,8 +19,7 @@ export const buildColDefs = ({
     headerName: "",
     width: 80,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
-      if (!data) return null;
-
+      if (!data || data._expanded === "inline") return null;
       const { id, _expanded } = data;
       const isExpanded = !!_expanded;
 
