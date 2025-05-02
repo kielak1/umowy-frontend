@@ -45,7 +45,7 @@ export default function Home() {
           ]}
           rowData={rowData}
           columnDefs={buildColDefs({ setRowData })}
-          defaultColDef={{ flex: 1, minWidth: 120, resizable: true }}
+          defaultColDef={{ flex: 1, minWidth: 120, resizable: true, filter: true, }}
           getRowHeight={getRowHeight}
           getRowId={(params) => String(params.data.id)}
           onCellValueChanged={onCellValueChanged}
