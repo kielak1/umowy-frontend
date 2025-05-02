@@ -12,6 +12,8 @@ import {
   SelectEditorModule,
   CheckboxEditorModule,
   ClientSideRowModelApiModule,
+  RowAutoHeightModule,
+  CellStyleModule, // Dodaj ten moduł
 } from "ag-grid-community";
 import { buildColDefs } from "./grid/columns";
 import { useContractsGridData } from "./grid/useUmowyData";
@@ -23,7 +25,10 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      <div className="ag-theme-quartz" style={{ height: "800px", width: "100%" }}>
+      <div
+        className="ag-theme-quartz"
+        style={{ height: "800px", width: "100%" }}
+      >
         <AgGridReact
           modules={[
             ClientSideRowModelModule,
@@ -35,9 +40,11 @@ export default function Home() {
             SelectEditorModule,
             CheckboxEditorModule,
             ClientSideRowModelApiModule,
+            RowAutoHeightModule,
+            CellStyleModule, // Dodaj moduł do listy
           ]}
           rowData={rowData}
-          columnDefs={buildColDefs(setRowData)}
+          columnDefs={buildColDefs({ setRowData })}
           defaultColDef={{ flex: 1, minWidth: 120, resizable: true }}
           getRowHeight={getRowHeight}
           getRowId={(params) => String(params.data.id)}
