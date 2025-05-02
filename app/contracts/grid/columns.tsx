@@ -7,7 +7,6 @@ interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
 }
 
-// Typ dla parametrów funkcji
 type BuildColDefsParams = {
   setRowData: React.Dispatch<React.SetStateAction<UmowaWithExpanded[]>>;
 };
@@ -19,7 +18,9 @@ export const buildColDefs = ({
     headerName: "",
     width: 80,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
+      // Bezpiecznik: brak danych lub to jest wiersz _inline => nie pokazuj przycisku
       if (!data || data._expanded === "inline") return null;
+
       const { id, _expanded } = data;
       const isExpanded = !!_expanded;
 
@@ -27,19 +28,31 @@ export const buildColDefs = ({
         <button
           className="text-sm text-blue-600 underline hover:text-blue-800"
           onClick={() => {
-            setRowData((prev) =>
-              prev.flatMap((row) => {
-                if (row.id !== id) return [row];
+            setRowData((prev) => {
+              const updated: UmowaWithExpanded[] = [];
 
-                const updated = { ...row, _expanded: !isExpanded };
-                return isExpanded
-                  ? [updated]
-                  : [
-                      updated,
-                      { ...row, id: -id, _expanded: "inline" as const },
-                    ];
-              })
-            );
+              for (const row of prev) {
+                // zwijamy inne otwarte
+                if (row._expanded === "inline") continue;
+
+                if (row.id === id) {
+                  const now = { ...row, _expanded: !isExpanded };
+                  updated.push(now);
+
+                  if (!isExpanded) {
+                    updated.push({
+                      ...row,
+                      id: -id,
+                      _expanded: "inline",
+                    });
+                  }
+                } else {
+                  updated.push({ ...row, _expanded: false });
+                }
+              }
+
+              return updated;
+            });
           }}
         >
           {isExpanded ? "Ukryj" : "Szczegóły"}
