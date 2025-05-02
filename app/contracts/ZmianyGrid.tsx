@@ -15,7 +15,7 @@ export default function ZmianyGrid({ umowaId }: { umowaId: number }) {
 
   return (
     <div>
-      <h4 className="font-bold mb-2">Zmiany umowy</h4>
+
       <div className="ag-theme-quartz" style={{ height: 200 }}>
         <AgGridReact<ZmianaUmowy>
           modules={[
