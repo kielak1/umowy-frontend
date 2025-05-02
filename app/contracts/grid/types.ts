@@ -29,3 +29,14 @@ export interface Umowa {
   najnowsza_zmiana: ZmianaUmowy | null;
   _expanded?: boolean | "inline";
 }
+
+export interface Zamowienie {
+    id: number;
+    numer_zamowienia: string;
+    data_zlozenia: string;
+    data_realizacji: string | null;
+    kwota_netto: string;
+    waluta: string;
+    opis: string;
+  }
+  
