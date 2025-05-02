@@ -7,13 +7,14 @@ import {
   ValidationModule,
   TextFilterModule,
   DateFilterModule,
+  NumberFilterModule,
   TextEditorModule,
   DateEditorModule,
   SelectEditorModule,
   CheckboxEditorModule,
   ClientSideRowModelApiModule,
   RowAutoHeightModule,
-  CellStyleModule, // Dodaj ten moduł
+  CellStyleModule,
 } from "ag-grid-community";
 import { buildColDefs } from "./grid/columns";
 import { useContractsGridData } from "./grid/useUmowyData";
@@ -37,15 +38,21 @@ export default function Home() {
             DateFilterModule,
             TextEditorModule,
             DateEditorModule,
+            NumberFilterModule,
             SelectEditorModule,
             CheckboxEditorModule,
             ClientSideRowModelApiModule,
             RowAutoHeightModule,
-            CellStyleModule, // Dodaj moduł do listy
+            CellStyleModule,
           ]}
           rowData={rowData}
           columnDefs={buildColDefs({ setRowData })}
-          defaultColDef={{ flex: 1, minWidth: 120, resizable: true, filter: true, }}
+          defaultColDef={{
+            flex: 1,
+            minWidth: 120,
+            resizable: true,
+            filter: true,
+          }}
           getRowHeight={getRowHeight}
           getRowId={(params) => String(params.data.id)}
           onCellValueChanged={onCellValueChanged}
