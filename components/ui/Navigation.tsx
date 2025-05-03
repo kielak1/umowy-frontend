@@ -10,8 +10,8 @@ const navItems = [
   { href: "/contracts", label: "Umowy" },
   { href: "/nowa-umowa", label: "Nowa umowa" },
   { href: "/admin/permissions", label: "Uprawnienia" },
+  { href: "/admin/users", label: "Użytkownicy" },
   { href: "/register", label: "Nowy użytkownik" },
-
 ];
 
 export default function Navigation() {
