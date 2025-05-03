@@ -45,13 +45,13 @@ export default function Navigation() {
   const [formUsername, setFormUsername] = useState("");
   const [formPassword, setFormPassword] = useState("");
   const [error, setError] = useState("");
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!username) return;
     fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/permissions/user/me/`)
       .then((res) => (res.ok ? res.json() : []))
-      // .then(setPermissions)
-
       .then((data) => {
         console.log("Uprawnienia użytkownika:", data);
         setPermissions(data);
@@ -71,6 +71,16 @@ export default function Navigation() {
     }
   }
 
+  const handleMouseEnter = (label: string) => {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    setOpenDropdown(label);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => setOpenDropdown(null), 200);
+    setHideTimeout(timeout);
+  };
+
   return (
     <nav className="border-b px-4 py-2 bg-white shadow-sm">
       <ul className="flex items-center gap-6">
@@ -86,25 +96,32 @@ export default function Navigation() {
         {username &&
           NAV_SECTIONS.filter((section) => section.visible(permissions)).map(
             (section) => (
-              <li key={section.label} className="relative group">
+              <li
+                key={section.label}
+                className="relative"
+                onMouseEnter={() => handleMouseEnter(section.label)}
+                onMouseLeave={handleMouseLeave}
+              >
                 <span className="inline-flex items-center cursor-pointer font-semibold hover:text-blue-700">
                   {section.label}
                   <ChevronDown className="ml-1 w-4 h-4" />
                 </span>
-                <ul className="absolute z-10 hidden group-hover:block bg-white border rounded shadow-md mt-1 min-w-[180px]">
-                  {section.items.map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`block px-4 py-2 hover:bg-blue-50 ${
-                          pathname === item.href ? "font-bold" : ""
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                {openDropdown === section.label && (
+                  <ul className="absolute z-10 bg-white border rounded shadow-md mt-1 min-w-[180px]">
+                    {section.items.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`block px-4 py-2 hover:bg-blue-50 ${
+                            pathname === item.href ? "font-bold" : ""
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             )
           )}
