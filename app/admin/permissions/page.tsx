@@ -3,11 +3,26 @@
 import { useEffect, useState, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { ClientSideRowModelModule } from "ag-grid-community";
+// import 'ag-grid-community/styles/ag-grid.css';
+import "ag-grid-community/styles/ag-theme-quartz.css";
+
 import type { ICellRendererParams } from "ag-grid-community";
 
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import {
+  ClientSideRowModelModule,
+  TextFilterModule,
+  DateFilterModule,
+  NumberFilterModule,
+} from "ag-grid-community";
+import { ModuleRegistry } from "ag-grid-community";
 
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  TextFilterModule,
+  DateFilterModule,
+  NumberFilterModule,
+]);
 interface User {
   id: number;
   username: string;
@@ -287,7 +302,12 @@ export default function PermissionsPage() {
         <AgGridReact<UserPermission>
           rowData={rowData}
           columnDefs={colDefs}
-          modules={[ClientSideRowModelModule]}
+          modules={[
+            ClientSideRowModelModule,
+            TextFilterModule,
+            DateFilterModule,
+            NumberFilterModule,
+          ]}
           defaultColDef={{
             flex: 1,
             resizable: true,

@@ -9,6 +9,7 @@ const navItems = [
   { href: "/", label: "Start" },
   { href: "/contracts", label: "Umowy" },
   { href: "/nowa-umowa", label: "Nowa umowa" },
+  { href: "/admin/permissions", label: "Uprawnienia" },
 ];
 
 export default function Navigation() {
