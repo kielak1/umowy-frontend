@@ -29,6 +29,7 @@ ModuleRegistry.registerModules([
   CellStyleModule,
   RowAutoHeightModule,
 ]);
+import { Trash2 } from "lucide-react";
 
 interface UserProfile {
   source: "local" | "ad" | "oidc";
@@ -81,6 +82,7 @@ export default function AdminUsersPage() {
     },
     {
       headerName: "",
+      field: "delete",
       cellRenderer: (params: { data: UserRow }) => {
         const handleClick = async () => {
           const confirmed = window.confirm(
@@ -90,9 +92,7 @@ export default function AdminUsersPage() {
 
           await fetchWithAuth(
             `${process.env.NEXT_PUBLIC_API_URL}/api/users/${params.data.id}/`,
-            {
-              method: "DELETE",
-            }
+            { method: "DELETE" }
           );
           setRowData((prev) => prev.filter((u) => u.id !== params.data.id));
         };
@@ -100,13 +100,14 @@ export default function AdminUsersPage() {
         return (
           <button
             onClick={handleClick}
-            className="text-red-600 border px-2 py-1 rounded border-red-600 hover:bg-red-100"
+            className="text-red-600 p-1 rounded hover:bg-red-100"
+            title="Usuń użytkownika"
           >
-            Usuń
+            <Trash2 size={16} strokeWidth={1.5} />
           </button>
         );
       },
-      width: 40,
+      width: 58,
       flex: 0,
     },
   ];
