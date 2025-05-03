@@ -16,7 +16,7 @@ const NAV_SECTIONS = [
   {
     label: "Umowy",
     visible: (perms: PermissionEntry[]) =>
-      hasAccess(perms, "contracts", ["read", "write"]),
+      hasAccess(perms, "contracts", ["read", "write", "system", "finance"]),
     items: [
       { href: "/contracts", label: "Przegląd" },
       { href: "/nowa-umowa", label: "Nowa umowa" },
