@@ -106,6 +106,8 @@ export default function AdminUsersPage() {
           </button>
         );
       },
+      width: 40,
+      flex: 0,
     },
   ];
 
@@ -149,7 +151,7 @@ export default function AdminUsersPage() {
           onCellValueChanged={onCellValueChanged}
           defaultColDef={{
             flex: 1,
-            minWidth: 150,
+            minWidth: 50,
             resizable: true,
             filter: true,
           }}
