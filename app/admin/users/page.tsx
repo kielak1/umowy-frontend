@@ -68,6 +68,10 @@ export default function AdminUsersPage() {
       headerName: "default_page",
       field: "profile.default_page",
       editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        values: ["/", "/contracts", "/admin/permissions"],
+      },
     },
     {
       headerName: "nowe hasło",
@@ -107,7 +111,10 @@ export default function AdminUsersPage() {
 
   const onCellValueChanged = async (event: CellValueChangedEvent<UserRow>) => {
     const { data } = event;
-
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      alert("Niepoprawny adres e-mail. Nie zosatł zapisany.");
+      return;
+    }
     const updatePayload: Partial<UserRow> = {
       username: data.username,
       email: data.email,
