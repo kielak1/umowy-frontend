@@ -3,13 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { Zamowienie } from "./types";
 import { CellValueChangedEvent } from "ag-grid-community";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export function useZamowieniaData(umowaId: number) {
   const [rowData, setRowData] = useState<Zamowienie[]>([]);
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/?umowa_id=${umowaId}`;
 
   const fetchData = useCallback(() => {
-    fetch(apiUrl)
+    fetchWithAuth(apiUrl)
       .then((res) => res.json())
       .then(setRowData)
       .catch(console.error);
@@ -21,7 +22,7 @@ export function useZamowieniaData(umowaId: number) {
 
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent<Zamowienie>) => {
-      fetch(
+      fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${params.data.id}/`,
         {
           method: "PUT",

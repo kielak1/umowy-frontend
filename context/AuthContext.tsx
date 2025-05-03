@@ -1,20 +1,16 @@
 "use client";
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
-// Typ kontekstu
 type AuthContextType = {
-  accessToken: string | null;
   username: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<void>;
 };
 
-// Domyślnie null, potem sprawdzamy w useAuth
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
 
   async function login(username: string, password: string) {
@@ -25,14 +21,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!res.ok) throw new Error("Błędny login lub hasło");
+
     const data = await res.json();
-    setAccessToken(data.access);
+    sessionStorage.setItem("access_token", data.access);
     setUsername(data.username);
   }
 
   async function logout() {
     await fetch("/api/logout", { method: "POST" });
-    setAccessToken(null);
+    sessionStorage.removeItem("access_token");
     setUsername(null);
   }
 
@@ -45,13 +42,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
     if (!res.ok) return logout();
+
     const data = await res.json();
-    setAccessToken(data.access);
+    sessionStorage.setItem("access_token", data.access);
   }
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, username, login, logout, refreshAccessToken }}
+      value={{ username, login, logout, refreshAccessToken }}
     >
       {children}
     </AuthContext.Provider>

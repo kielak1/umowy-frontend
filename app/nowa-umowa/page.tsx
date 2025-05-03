@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface Kontrahent {
   id: number;
@@ -11,7 +12,6 @@ interface User {
   id: number;
   username: string;
 }
-
 interface OrganizationalUnit {
   id: number;
   name: string;
@@ -26,7 +26,9 @@ export default function NowaUmowa() {
   const [wymaganaDataNowejUmowy, setWymaganaDataNowejUmowy] = useState("");
   const [czySpelniaDora, setCzySpelniaDora] = useState(false);
   const [kontrahenci, setKontrahenci] = useState<Kontrahent[]>([]);
-  const [wybranyKontrahent, setWybranyKontrahent] = useState<number | null>(null);
+  const [wybranyKontrahent, setWybranyKontrahent] = useState<number | null>(
+    null
+  );
   const [users, setUsers] = useState<User[]>([]);
   const [units, setUnits] = useState<OrganizationalUnit[]>([]);
   const [opiekunId, setOpiekunId] = useState<number | null>(null);
@@ -34,7 +36,7 @@ export default function NowaUmowa() {
 
   useEffect(() => {
     const kontrahenciUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/kontrahenci/`;
-    fetch(kontrahenciUrl)
+    fetchWithAuth(kontrahenciUrl)
       .then((response) => response.json())
       .then((data) => setKontrahenci(data));
   }, []);
@@ -43,11 +45,11 @@ export default function NowaUmowa() {
     const usersUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/users/`;
     const unitsUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/orgunits/`;
 
-    fetch(usersUrl)
+    fetchWithAuth(usersUrl)
       .then((res) => res.json())
       .then(setUsers);
 
-    fetch(unitsUrl)
+    fetchWithAuth(unitsUrl)
       .then((res) => res.json())
       .then(setUnits);
   }, []);
@@ -55,7 +57,9 @@ export default function NowaUmowa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wybranyKontrahent || !opiekunId || !orgUnitId) {
-      alert("Uzupełnij wszystkie wymagane pola (kontrahent, opiekun, jednostka).");
+      alert(
+        "Uzupełnij wszystkie wymagane pola (kontrahent, opiekun, jednostka)."
+      );
       return;
     }
 
@@ -73,7 +77,7 @@ export default function NowaUmowa() {
 
     const umowyUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/`;
 
-    await fetch(umowyUrl, {
+    await fetchWithAuth(umowyUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
