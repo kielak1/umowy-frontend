@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
+import { useEffect, useState } from "react";
+import { AgGridReact } from "ag-grid-react";
 import {
   ClientSideRowModelModule,
   ValidationModule,
@@ -14,10 +14,10 @@ import {
   ModuleRegistry,
   ColDef,
   CellValueChangedEvent,
-} from 'ag-grid-community';
+} from "ag-grid-community";
 
-import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
@@ -31,7 +31,7 @@ ModuleRegistry.registerModules([
 ]);
 
 interface UserProfile {
-  source: 'local' | 'ad' | 'oidc';
+  source: "local" | "ad" | "oidc";
   default_page: string | null;
 }
 
@@ -53,35 +53,43 @@ export default function AdminUsersPage() {
   }, []);
 
   const columnDefs: ColDef[] = [
-    { field: 'username', editable: true },
-    { field: 'email', editable: true },
+    { field: "username", editable: true },
+    { field: "email", editable: true },
     {
-      headerName: 'source',
-      field: 'profile.source',
+      headerName: "source",
+      field: "profile.source",
       editable: true,
-      cellEditor: 'agSelectCellEditor',
+      cellEditor: "agSelectCellEditor",
       cellEditorParams: {
-        values: ['local', 'ad', 'oidc'],
+        values: ["local", "ad", "oidc"],
       },
     },
     {
-      headerName: 'default_page',
-      field: 'profile.default_page',
+      headerName: "default_page",
+      field: "profile.default_page",
       editable: true,
     },
     {
-      headerName: 'nowe hasło',
-      field: 'password',
+      headerName: "nowe hasło",
+      field: "password",
       editable: true,
-      cellRenderer: () => '••••••',
+      cellRenderer: () => "••••••",
     },
     {
-      headerName: '',
+      headerName: "",
       cellRenderer: (params: { data: UserRow }) => {
         const handleClick = async () => {
-          await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${params.data.id}/`, {
-            method: 'DELETE',
-          });
+          const confirmed = window.confirm(
+            `Czy na pewno chcesz usunąć użytkownika ${params.data.username}?`
+          );
+          if (!confirmed) return;
+
+          await fetchWithAuth(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/users/${params.data.id}/`,
+            {
+              method: "DELETE",
+            }
+          );
           setRowData((prev) => prev.filter((u) => u.id !== params.data.id));
         };
 
@@ -104,25 +112,28 @@ export default function AdminUsersPage() {
       username: data.username,
       email: data.email,
       profile: {
-        source: data.profile?.source ?? 'local',
+        source: data.profile?.source ?? "local",
         default_page: data.profile?.default_page ?? null,
       },
     };
 
-    if (typeof data.password === 'string' && data.password.length >= 8) {
+    if (typeof data.password === "string" && data.password.length >= 8) {
       updatePayload.password = data.password;
     }
 
-    await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${data.id}/`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatePayload),
-    });
+    await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${data.id}/`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatePayload),
+      }
+    );
   };
 
   return (
     <div className="p-4">
-      <div className="ag-theme-quartz" style={{ height: 800, width: '100%' }}>
+      <div className="ag-theme-quartz" style={{ height: 800, width: "100%" }}>
         <AgGridReact<UserRow>
           rowData={rowData}
           columnDefs={columnDefs}
