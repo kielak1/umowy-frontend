@@ -115,7 +115,7 @@ export default function AdminUsersPage() {
   const onCellValueChanged = async (event: CellValueChangedEvent<UserRow>) => {
     const { data } = event;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      alert("Niepoprawny adres e-mail. Nie zosatł zapisany.");
+      alert("Niepoprawny adres e-mail. Nie został zapisany.");
       return;
     }
     const updatePayload: Partial<UserRow> = {
