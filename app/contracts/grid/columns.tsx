@@ -1,6 +1,10 @@
 "use client";
 
-import type { ColDef, ICellRendererParams } from "ag-grid-community";
+import type {
+  ColDef,
+  ICellRendererParams,
+  CellClassParams,
+} from "ag-grid-community";
 import { Umowa } from "./types";
 import UmowaDetails from "../UmowaDetails";
 import { ChevronRight, ChevronDown } from "lucide-react";
@@ -8,6 +12,15 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
 }
+
+const getSzczegolyCellStyle = (
+  params: CellClassParams<UmowaWithExpanded>
+): React.CSSProperties => {
+  const data = params.data;
+  return data?._expanded !== "inline"
+    ? { backgroundColor: "#f1f5f9" }
+    : { padding: 0, backgroundColor: "#f8fafc" };
+};
 
 type BuildColDefsParams = {
   setRowData: React.Dispatch<React.SetStateAction<UmowaWithExpanded[]>>;
@@ -57,7 +70,7 @@ export const buildColDefs = ({
     },
     pinned: "left",
     suppressSizeToFit: true,
-    menuTabs: [], // poprawka tutaj
+    menuTabs: [],
   },
 
   {
@@ -66,11 +79,59 @@ export const buildColDefs = ({
     colSpan: ({ data }) => (data?._expanded === "inline" ? 14 : 1),
     autoHeight: true,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
-      if (data?._expanded !== "inline") return null;
-      return <UmowaDetails data={{ ...data, id: Math.abs(data.id) }} />;
+      if (!data) return null;
+  
+      if (data._expanded === "inline") {
+        return <UmowaDetails data={{ ...data, id: Math.abs(data.id) }} />;
+      }
+  
+      const isExpanded = !!data._expanded;
+  
+      return (
+        <div className="flex items-center gap-2 ps-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setRowData((prev) => {
+                const updated: UmowaWithExpanded[] = [];
+                for (const row of prev) {
+                  if (row._expanded === "inline") continue;
+                  if (row.id === data.id) {
+                    const now = { ...row, _expanded: !isExpanded };
+                    updated.push(now);
+                    if (!isExpanded) {
+                      updated.push({
+                        ...row,
+                        id: -data.id,
+                        _expanded: "inline" as const,
+                      });
+                    }
+                  } else {
+                    updated.push({ ...row, _expanded: false });
+                  }
+                }
+                return updated;
+              });
+            }}
+            className="p-1 hover:bg-gray-200 rounded transition-all"
+            aria-label="Toggle details"
+          >
+            {isExpanded ? (
+              <ChevronDown size={16} />
+            ) : (
+              <ChevronRight size={16} />
+            )}
+          </button>
+          <span className="text-sm text-gray-800">Szczegóły</span>
+        </div>
+      );
     },
-    cellStyle: { padding: 0, backgroundColor: "#f8fafc" },
+    cellStyle: (params: CellClassParams<UmowaWithExpanded>) => ({
+      ...getSzczegolyCellStyle(params),
+    }),
   },
+
+  
   {
     headerName: "Numer",
     field: "numer",
