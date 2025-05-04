@@ -51,11 +51,18 @@ export default function Navigation() {
 
   useEffect(() => {
     if (!username) return;
+
     fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/permissions/user/me/`)
-      .then((res) => (res.ok ? res.json() : []))
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        console.log("Uprawnienia użytkownika:", data);
-        setPermissions(data);
+        if (data) {
+          console.log("Uprawnienia użytkownika:", data.permissions);
+          setPermissions(data.permissions);
+          // Możesz też opcjonalnie użyć default_page np.:
+          // router.push(data.default_page);
+        } else {
+          setPermissions([]);
+        }
       })
       .catch(() => setPermissions([]));
   }, [username]);
