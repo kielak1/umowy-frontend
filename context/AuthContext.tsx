@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 type AuthContextType = {
   username: string | null;
@@ -12,6 +13,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
+  const router = useRouter(); // <- legalne użycie hooka
 
   async function login(username: string, password: string) {
     const res = await fetch("/api/login", {
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await fetch("/api/logout", { method: "POST" });
     sessionStorage.removeItem("access_token");
     setUsername(null);
+    router.push("/"); 
   }
 
   async function refreshAccessToken() {

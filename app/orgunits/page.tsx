@@ -39,11 +39,16 @@ interface OrgUnit {
 
 export default function OrgUnitsPage() {
   const [rowData, setRowData] = useState<OrgUnit[]>([]);
+  const [allUnits, setAllUnits] = useState<OrgUnit[]>([]);
 
   useEffect(() => {
     fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/orgunits/`)
       .then((res) => res.json())
-      .then(setRowData);
+      .then((data) => {
+        console.log("📥 Fetched org units from API:", data);
+        setRowData(data);
+        setAllUnits(data);
+      });
   }, []);
 
   const columnDefs: ColDef[] = [
@@ -53,11 +58,23 @@ export default function OrgUnitsPage() {
       editable: true,
     },
     {
-      headerName: "ID jednostki nadrzędnej",
+      headerName: "Jednostka nadrzędna",
       field: "parent",
       editable: true,
-      cellEditor: "agTextCellEditor",
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        values: ["", ...allUnits.map((unit) => unit.id.toString())],
+      },
+      valueFormatter: (params) => {
+        const found = allUnits.find((u) => u.id === Number(params.value));
+        return found?.name || "";
+      },
+      valueParser: (params) => {
+        const value = params.newValue;
+        return value === "" ? null : Number(value);
+      },
     },
+
     {
       headerName: "",
       field: "delete",
@@ -73,6 +90,7 @@ export default function OrgUnitsPage() {
             { method: "DELETE" }
           );
           setRowData((prev) => prev.filter((u) => u.id !== params.data.id));
+          setAllUnits((prev) => prev.filter((u) => u.id !== params.data.id));
         };
 
         return (
@@ -92,13 +110,27 @@ export default function OrgUnitsPage() {
 
   const onCellValueChanged = async (event: CellValueChangedEvent<OrgUnit>) => {
     const { data } = event;
+    console.log("📝 Cell changed:", data);
+
+    const rawParent = data.parent;
+    const parentId =
+      rawParent !== null && String(rawParent).trim() !== ""
+        ? Number(rawParent)
+        : null;
+
+    if (parentId === data.id) {
+      alert("Jednostka nie może być przypisana jako rodzic sama sobie.");
+      return;
+    }
 
     const payload = {
       name: data.name,
-      parent: data.parent,
+      parent: parentId,
     };
 
-    await fetchWithAuth(
+    console.log("📤 Payload to API:", payload);
+
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/orgunits/${data.id}/`,
       {
         method: "PUT",
@@ -106,6 +138,13 @@ export default function OrgUnitsPage() {
         body: JSON.stringify(payload),
       }
     );
+
+    if (!res.ok) {
+      console.error("❌ Błąd zapisu jednostki:", await res.text());
+      alert("Błąd przy zapisie jednostki.");
+    } else {
+      console.log("✅ Zapisano poprawnie");
+    }
   };
 
   const addOrgUnit = async () => {
@@ -124,6 +163,10 @@ export default function OrgUnitsPage() {
     if (res.ok) {
       const newUnit = await res.json();
       setRowData((prev) => [...prev, newUnit]);
+      setAllUnits((prev) => [...prev, newUnit]);
+      console.log("➕ Dodano nową jednostkę:", newUnit);
+    } else {
+      console.error("❌ Błąd przy dodawaniu:", await res.text());
     }
   };
 
