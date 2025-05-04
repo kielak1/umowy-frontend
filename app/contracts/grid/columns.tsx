@@ -1,6 +1,9 @@
+"use client";
+
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import { Umowa } from "./types";
 import UmowaDetails from "../UmowaDetails";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
@@ -15,7 +18,7 @@ export const buildColDefs = ({
 }: BuildColDefsParams): ColDef<UmowaWithExpanded>[] => [
   {
     headerName: "",
-    width: 80,
+    width: 50,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
       if (!data || data._expanded === "inline") return null;
       const { id, _expanded } = data;
@@ -23,7 +26,8 @@ export const buildColDefs = ({
 
       return (
         <button
-          className="text-sm text-blue-600 underline hover:text-blue-800"
+          className="p-1 hover:bg-gray-200 rounded transition-all"
+          aria-label="Toggle details"
           onClick={() => {
             setRowData((prev) => {
               const updated: UmowaWithExpanded[] = [];
@@ -47,11 +51,15 @@ export const buildColDefs = ({
             });
           }}
         >
-          {isExpanded ? "Ukryj" : "Szczegóły"}
+          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
       );
     },
+    pinned: "left",
+    suppressSizeToFit: true,
+    menuTabs: [], // poprawka tutaj
   },
+
   {
     headerName: "Szczegóły",
     field: "id",
