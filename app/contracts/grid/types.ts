@@ -16,6 +16,8 @@ export interface ZmianaUmowy {
   data_zawarcia: string;
   kwota_netto: string;
   waluta: string;
+  przedmiot: string;  
+  status: string;
 }
 export interface Umowa {
   id: number;

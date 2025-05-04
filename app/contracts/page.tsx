@@ -28,7 +28,7 @@ export default function Home() {
     <div className="p-4">
       <div
         className="ag-theme-quartz"
-        style={{ height: "800px", width: "100%" }}
+        style={{ height: "800px", width: "2300px" }}
       >
         <AgGridReact
           modules={[
@@ -56,6 +56,7 @@ export default function Home() {
           getRowHeight={getRowHeight}
           getRowId={(params) => String(params.data.id)}
           onCellValueChanged={onCellValueChanged}
+          headerHeight={100}
         />
       </div>
     </div>

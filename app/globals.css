@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Tailwind + AG Grid obrót pionowy */
+.tw-rotate-header .ag-header-cell-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

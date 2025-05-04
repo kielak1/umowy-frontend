@@ -98,17 +98,99 @@ export const buildColDefs = ({
     filter: "agTextColumnFilter",
     editable: true,
   },
-  { headerName: "Ramowa", field: "czy_ramowa", editable: true },
   {
-    headerName: "Dot. usługi",
+    headerName: "Przedmiot",
+    field: "najnowsza_zmiana.przedmiot",
+    filter: "agTextColumnFilter",
+  },
+  {
+    headerName: "Status",
+    field: "najnowsza_zmiana.status",
+    filter: "agTextColumnFilter",
+    width: 140,
+    minWidth: 140,
+    maxWidth: 140,
+    flex: 0,
+  },
+  {
+    headerName: "Data zawarcia",
+    field: "najnowsza_zmiana.data_zawarcia",
+    filter: "agDateColumnFilter",
+    width: 140,
+    minWidth: 140,
+    maxWidth: 140,
+    flex: 0,
+  },
+
+  {
+    headerName: "Kwota netto",
+    field: "najnowsza_zmiana.kwota_netto",
+    filter: "agNumberColumnFilter",
+    width: 130,
+    minWidth: 130,
+    maxWidth: 130,
+    flex: 0,
+    valueFormatter: (params) => {
+      const value = Number(params.value);
+      return !isNaN(value)
+        ? value.toLocaleString("pl-PL", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : "";
+    },
+    cellStyle: { textAlign: "right" },
+  },
+  {
+    headerName: "$",
+    field: "najnowsza_zmiana.waluta",
+    filter: "agTextColumnFilter",
+    width: 59,
+    minWidth: 59,
+    maxWidth: 59,
+    flex: 0,
+  },
+
+  {
+    headerName: "Ramowa",
+    field: "czy_ramowa",
+    editable: true,
+    width: 58,
+    minWidth: 57,
+    maxWidth: 59,
+    flex: 0,
+    headerClass: "tw-rotate-header",
+  },
+
+  {
+    headerName: "Fix",
     field: "czy_dotyczy_konkretnych_uslug",
     editable: true,
+    width: 58,
+    minWidth: 57,
+    maxWidth: 59,
+    flex: 0,
+    headerClass: "tw-rotate-header",
   },
-  { headerName: "Spełnia DORA", field: "czy_spelnia_dora", editable: true },
   {
-    headerName: "Wymaga kontynuacji",
+    headerName: "DORA",
+    field: "czy_spelnia_dora",
+    editable: true,
+    width: 58,
+    minWidth: 57,
+    maxWidth: 59,
+    flex: 0,
+    headerClass: "tw-rotate-header",
+  },
+  {
+    headerName: "Wym. kontynuacji",
     field: "czy_wymaga_kontynuacji",
     editable: true,
+    width: 61,
+    minWidth: 61,
+    maxWidth: 61,
+    flex: 0,
+    headerClass: "tw-rotate-header",
   },
   {
     headerName: "Data kontynuacji",
@@ -116,21 +198,7 @@ export const buildColDefs = ({
     filter: "agDateColumnFilter",
     editable: true,
   },
-  {
-    headerName: "Data zawarcia",
-    field: "najnowsza_zmiana.data_zawarcia",
-    filter: "agDateColumnFilter",
-  },
-  {
-    headerName: "Kwota netto",
-    field: "najnowsza_zmiana.kwota_netto",
-    filter: "agNumberColumnFilter",
-  },
-  {
-    headerName: "Waluta",
-    field: "najnowsza_zmiana.waluta",
-    filter: "agTextColumnFilter",
-  },
+
   {
     headerName: "Kontrahent",
     field: "kontrahent.nazwa",
