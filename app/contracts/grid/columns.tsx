@@ -31,64 +31,25 @@ export const buildColDefs = ({
 }: BuildColDefsParams): ColDef<UmowaWithExpanded>[] => [
   {
     headerName: "",
-    width: 50,
-    cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
-      if (!data || data._expanded === "inline") return null;
-      const { id, _expanded } = data;
-      const isExpanded = !!_expanded;
-
-      return (
-        <button
-          className="p-1 hover:bg-gray-200 rounded transition-all"
-          aria-label="Toggle details"
-          onClick={() => {
-            setRowData((prev) => {
-              const updated: UmowaWithExpanded[] = [];
-              for (const row of prev) {
-                if (row._expanded === "inline") continue;
-                if (row.id === id) {
-                  const now = { ...row, _expanded: !isExpanded };
-                  updated.push(now);
-                  if (!isExpanded) {
-                    updated.push({
-                      ...row,
-                      id: -id,
-                      _expanded: "inline" as const,
-                    });
-                  }
-                } else {
-                  updated.push({ ...row, _expanded: false });
-                }
-              }
-              return updated;
-            });
-          }}
-        >
-          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
-      );
-    },
-    pinned: "left",
-    suppressSizeToFit: true,
-    menuTabs: [],
-  },
-
-  {
-    headerName: "Szczegóły",
     field: "id",
+    width: 52,
+    minWidth: 40,
+    maxWidth: 60,
+    filter: false,
+    flex: 0,
     colSpan: ({ data }) => (data?._expanded === "inline" ? 14 : 1),
     autoHeight: true,
     cellRenderer: ({ data }: ICellRendererParams<UmowaWithExpanded>) => {
       if (!data) return null;
-  
+
       if (data._expanded === "inline") {
         return <UmowaDetails data={{ ...data, id: Math.abs(data.id) }} />;
       }
-  
+
       const isExpanded = !!data._expanded;
-  
+
       return (
-        <div className="flex items-center gap-2 ps-2">
+        <div className="flex items-center gap-2 ps-1">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -122,7 +83,7 @@ export const buildColDefs = ({
               <ChevronRight size={16} />
             )}
           </button>
-          <span className="text-sm text-gray-800">Szczegóły</span>
+          <span className="text-sm text-gray-800"></span>
         </div>
       );
     },
@@ -131,7 +92,6 @@ export const buildColDefs = ({
     }),
   },
 
-  
   {
     headerName: "Numer",
     field: "numer",
