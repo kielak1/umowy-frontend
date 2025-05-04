@@ -30,6 +30,7 @@ const NAV_SECTIONS = [
       { href: "/admin/permissions", label: "Uprawnienia" },
       { href: "/admin/users", label: "Użytkownicy" },
       { href: "/register", label: "Nowy użytkownik" },
+      { href: "/orgunits", label: "Schemat organizacyjny" },
     ],
   },
 ];
