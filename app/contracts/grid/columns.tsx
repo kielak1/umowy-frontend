@@ -8,6 +8,8 @@ import type {
 import { Umowa } from "./types";
 import UmowaDetails from "../UmowaDetails";
 import { ChevronRight, ChevronDown } from "lucide-react";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
 
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
@@ -32,9 +34,9 @@ export const buildColDefs = ({
   {
     headerName: "",
     field: "id",
-    width: 52,
-    minWidth: 40,
-    maxWidth: 60,
+    width: 90,
+    minWidth: 90,
+    maxWidth: 90,
     filter: false,
     flex: 0,
     colSpan: ({ data }) => (data?._expanded === "inline" ? 14 : 1),
@@ -83,7 +85,15 @@ export const buildColDefs = ({
               <ChevronRight size={16} />
             )}
           </button>
-          <span className="text-sm text-gray-800"></span>
+
+          <Link
+            href={`/contracts/standard/${data.id}`}
+            className="p-1 hover:bg-gray-200 rounded transition-all"
+            title="Edytuj umowę"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Pencil size={16} />
+          </Link>
         </div>
       );
     },

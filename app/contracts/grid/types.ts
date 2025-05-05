@@ -94,3 +94,19 @@ export interface Zamowienie {
   przedmiot: string | null;
   producenci: string | null;
 }
+
+export interface UmowaFormData {
+  numer: string;
+  kontrahent_id?: number;
+  opiekun_id?: number;
+  jednostka_organizacyjna_id?: number;
+
+  czy_ramowa: boolean;
+  czy_dotyczy_konkretnych_uslug: boolean;
+  czy_spelnia_dora: boolean;
+  czy_wymaga_kontynuacji: boolean;
+  wymagana_data_kontynuacji?: string | null;
+
+  zmiany: Partial<ZmianaUmowy & { id?: number }>[];
+  zamowienia: Partial<Zamowienie & { id?: number }>[];
+}
