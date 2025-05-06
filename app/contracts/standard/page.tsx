@@ -2,8 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Umowa, ZmianaUmowy, Zamowienie } from "@/app/contracts/grid/types";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+
+const FormularzPelnejUmowy = dynamic(() => import("./FormularzPelnejUmowy"), {
+  ssr: false,
+});
 
 export default function UmowaEdycjaPage() {
   const searchParams = useSearchParams();
@@ -65,21 +70,13 @@ export default function UmowaEdycjaPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-xl font-semibold">Umowa #{umowa.numer}</h1>
-      <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto">
-        {JSON.stringify(umowa, null, 2)}
-      </pre>
-
-      <h2 className="text-lg font-medium">Zmiany</h2>
-      <pre className="bg-gray-50 p-2 rounded text-sm overflow-auto">
-        {JSON.stringify(zmiany, null, 2)}
-      </pre>
-
-      <h2 className="text-lg font-medium">Zamówienia</h2>
-      <pre className="bg-gray-50 p-2 rounded text-sm overflow-auto">
-        {JSON.stringify(zamowienia, null, 2)}
-      </pre>
+    <div className="p-4 max-w-4xl mx-auto">
+      <FormularzPelnejUmowy
+        umowa={umowa}
+        zmiany={zmiany}
+        zamowienia={zamowienia}
+        // zamowienia dodamy później
+      />
     </div>
   );
 }
