@@ -87,7 +87,7 @@ export const buildColDefs = ({
           </button>
 
           <Link
-            href={`/contracts/standard/${data.id}`}
+            href={`/contracts/standard?id=${data.id}`}
             className="p-1 hover:bg-gray-200 rounded transition-all"
             title="Edytuj umowę"
             onClick={(e) => e.stopPropagation()}
