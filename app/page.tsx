@@ -1,4 +1,5 @@
 // app/page.tsx lub components/Home.tsx
+import Image from "next/image";
 export default function Home() {
   return (
     <main
@@ -13,21 +14,18 @@ export default function Home() {
         textAlign: "center",
       }}
     >
-      <img
+      <Image
         src="/orca.png"
         alt="Orca Logo"
+        width={200} // Podaj szerokość w pikselach
+        height={200} // Podaj wysokość w pikselach (dostosuj do proporcji obrazu)
         style={{
-          width: "200px",
-          height: "auto",
           marginBottom: "2rem",
           filter: "drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))",
         }}
       />
       <h1 style={{ fontSize: "2.5rem", fontWeight: 600 }}>Orca</h1>
-      <p style={{ fontSize: "1.2rem", marginTop: "0.5rem", opacity: 0.8 }}>
-    
-    
-      </p>
+      <p style={{ fontSize: "1.2rem", marginTop: "0.5rem", opacity: 0.8 }}></p>
     </main>
   );
 }
