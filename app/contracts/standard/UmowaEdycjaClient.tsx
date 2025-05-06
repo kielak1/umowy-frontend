@@ -44,9 +44,11 @@ export default function UmowaEdycjaClient() {
         }
 
         const zmianyData: ZmianaUmowy[] = await zmianyRes.json();
-        const zamowieniaData: Zamowienie[] = await zamowieniaRes.json();
-
+        console.log("Dane zmian z endpointu:", zmianyData);
         setZmiany(zmianyData);
+
+        const zamowieniaData: Zamowienie[] = await zamowieniaRes.json();
+        console.log("Dane zamówień z endpointu:", zamowieniaData);
         setZamowienia(zamowieniaData);
       } catch (err) {
         console.error(err);

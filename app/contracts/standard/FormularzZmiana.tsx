@@ -1,9 +1,11 @@
-import { ZmianaUmowy } from "@/app/contracts/grid/types";
+"use client";
+
+import { ZmianaUmowaDoForm } from "@/app/contracts/grid/types";
 
 type Props = {
   index: number;
-  zmiana: ZmianaUmowy;
-  onChange: (index: number, updated: ZmianaUmowy) => void;
+  zmiana: ZmianaUmowaDoForm;
+  onChange: (index: number, updated: ZmianaUmowaDoForm) => void;
   onDelete: (index: number) => void;
 };
 
@@ -18,8 +20,14 @@ export default function FormularzZmiana({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value } = e.target;
-    onChange(index, { ...zmiana, [name]: value });
+    const { name, value, type } = e.target;
+    const newValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+
+    onChange(index, {
+      ...zmiana,
+      [name]: newValue,
+    });
   };
 
   return (
@@ -53,14 +61,50 @@ export default function FormularzZmiana({
       </div>
 
       <div>
+        <label className="block font-medium">Data obowiązywania od</label>
+        <input
+          type="date"
+          name="data_obowiazywania_od"
+          value={zmiana.data_obowiazywania_od}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Data obowiązywania do</label>
+        <input
+          type="date"
+          name="data_obowiazywania_do"
+          value={zmiana.data_obowiazywania_do ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
+        />
+      </div>
+
+      <div>
         <label className="block font-medium">Kwota netto</label>
         <input
           type="number"
           name="kwota_netto"
-          value={zmiana.kwota_netto ?? ""}
+          value={zmiana.kwota_netto}
           onChange={handleChange}
           className="border rounded px-2 py-1"
         />
+      </div>
+
+      <div>
+        <label className="block font-medium">Waluta</label>
+        <select
+          name="waluta"
+          value={zmiana.waluta}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
+        >
+          <option value="PLN">PLN</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
       </div>
 
       <div>
@@ -70,6 +114,84 @@ export default function FormularzZmiana({
           value={zmiana.opis}
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Numer umowy dostawcy</label>
+        <input
+          type="text"
+          name="numer_umowy_dostawcy"
+          value={zmiana.numer_umowy_dostawcy ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Przedmiot</label>
+        <input
+          type="text"
+          name="przedmiot"
+          value={zmiana.przedmiot ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Producenci</label>
+        <input
+          type="text"
+          name="producenci"
+          value={zmiana.producenci ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Data podpisania</label>
+        <input
+          type="date"
+          name="data_podpisania"
+          value={zmiana.data_podpisania ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Data wypowiedzenia</label>
+        <input
+          type="date"
+          name="data_wypowiedzenia"
+          value={zmiana.data_wypowiedzenia ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
+        />
+      </div>
+
+      <div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="trzeba_wypowiedziec"
+            checked={zmiana.trzeba_wypowiedziec}
+            onChange={handleChange}
+          />
+          Trzeba wypowiedzieć
+        </label>
+      </div>
+
+      <div>
+        <label className="block font-medium">Finansowanie do</label>
+        <input
+          type="date"
+          name="finansowanie_do"
+          value={zmiana.finansowanie_do ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1"
         />
       </div>
 

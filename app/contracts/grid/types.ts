@@ -110,3 +110,31 @@ export interface UmowaFormData {
   zmiany: Partial<ZmianaUmowy & { id?: number }>[];
   zamowienia: Partial<Zamowienie & { id?: number }>[];
 }
+
+export type ZmianaUmowaDoForm = {
+  id: number;
+  rodzaj: string;
+  data_zawarcia: string;
+  data_obowiazywania_od: string;
+  data_obowiazywania_do: string | null;
+  kwota_netto: string;
+  waluta: "PLN" | "EUR" | "USD";
+  opis: string;
+
+  przedmiot: string | null;
+  producenci: string | null;
+  numer_umowy_dostawcy: string | null;
+
+  kategoria_id?: number | null;
+  wlasciciel_id?: number | null;
+  status_id?: number | null;
+  klasyfikacja_id?: number | null;
+  obszary_funkcjonalne_ids?: number[];
+
+  data_podpisania: string | null;
+  data_wypowiedzenia: string | null;
+  trzeba_wypowiedziec: boolean;
+  finansowanie_do: string | null;
+
+  umowa: number;
+};
