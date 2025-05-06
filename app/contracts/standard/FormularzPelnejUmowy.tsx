@@ -1,13 +1,18 @@
 "use client";
 
-import { Umowa, ZmianaUmowy, Zamowienie } from "@/app/contracts/grid/types";
-import { useState } from "react";
+import {
+  Umowa,
+  ZmianaUmowy,
+  Zamowienie,
+  UmowaFormData,
+} from "@/app/contracts/grid/types";
 import FormularzZmianyList from "./FormularzZmianyList";
 import FormularzZamowieniaList from "./FormularzZamowieniaList";
+import { useUmowaForm } from "./useUmowaForm";
 
 type Props = {
   umowa: Umowa;
-  zmiany: ZmianaUmowy[];
+  zmiany: ZmianaUmowa[];
   zamowienia: Zamowienie[];
 };
 
@@ -16,32 +21,35 @@ export default function FormularzPelnejUmowy({
   zmiany,
   zamowienia,
 }: Props) {
-  const [formData, setFormData] = useState({
-    numer: umowa.numer || "",
-    czy_ramowa: umowa.czy_ramowa || false,
-    czy_dotyczy_konkretnych_uslug: umowa.czy_dotyczy_konkretnych_uslug || false,
-    czy_spelnia_dora: umowa.czy_spelnia_dora || false,
-    czy_wymaga_kontynuacji: umowa.czy_wymaga_kontynuacji || false,
-    wymagana_data_kontynuacji: umowa.wymagana_data_kontynuacji || "",
+  const {
+    formData,
+    handleChange,
+    submit,
+    isSubmitting,
+    submitError,
+    successMessage,
+  } = useUmowaForm({
+    numer: umowa.numer,
+    czy_ramowa: umowa.czy_ramowa,
+    czy_dotyczy_konkretnych_uslug: umowa.czy_dotyczy_konkretnych_uslug,
+    czy_spelnia_dora: umowa.czy_spelnia_dora,
+    czy_wymaga_kontynuacji: umowa.czy_wymaga_kontynuacji,
+    wymagana_data_kontynuacji: umowa.wymagana_data_kontynuacji,
+    kontrahent_id: umowa.kontrahent?.id,
+    opiekun_id: umowa.opiekun?.id,
+    jednostka_organizacyjna_id: umowa.jednostka_organizacyjna?.id,
+    zmiany: [],
+    zamowienia: [],
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, type, value } = e.target;
-    const newValue =
-      type === "checkbox" && "checked" in e.target
-        ? (e.target as HTMLInputElement).checked
-        : value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  };
-
   return (
-    <form className="space-y-6">
+    <form
+      className="space-y-6"
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit(umowa.id);
+      }}
+    >
       <h2 className="text-lg font-semibold">Podstawowe dane umowy</h2>
 
       <div>
@@ -114,6 +122,17 @@ export default function FormularzPelnejUmowy({
           className="border rounded px-2 py-1"
         />
       </div>
+
+      {submitError && <p className="text-red-600">{submitError}</p>}
+      {successMessage && <p className="text-green-600">{successMessage}</p>}
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        {isSubmitting ? "Zapisywanie..." : "Zapisz podstawowe dane umowy"}
+      </button>
 
       <FormularzZmianyList initialZmiany={zmiany} />
       <FormularzZamowieniaList initialZamowienia={zamowienia} />
