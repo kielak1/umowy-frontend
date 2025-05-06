@@ -8,10 +8,14 @@ import FormularzZamowieniaList from "./FormularzZamowieniaList";
 type Props = {
   umowa: Umowa;
   zmiany: ZmianaUmowy[];
-  zamowienia: Zamowienie[]; // ✔️ poprawnie
+  zamowienia: Zamowienie[];
 };
 
-export default function FormularzPelnejUmowy({ umowa, zmiany, zamowienia }: Props) {
+export default function FormularzPelnejUmowy({
+  umowa,
+  zmiany,
+  zamowienia,
+}: Props) {
   const [formData, setFormData] = useState({
     numer: umowa.numer || "",
     czy_ramowa: umowa.czy_ramowa || false,

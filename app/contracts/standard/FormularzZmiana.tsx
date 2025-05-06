@@ -14,7 +14,9 @@ export default function FormularzZmiana({
   onDelete,
 }: Props) {
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     onChange(index, { ...zmiana, [name]: value });
