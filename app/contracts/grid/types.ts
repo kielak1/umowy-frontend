@@ -6,7 +6,6 @@ declare global {
     __validateUmowaForm?: () => boolean;
   }
 }
-
 export interface Kontrahent {
   id: number;
   nazwa: string;

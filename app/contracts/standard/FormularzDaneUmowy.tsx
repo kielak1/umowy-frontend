@@ -88,7 +88,9 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
   };
 
   // do walidacji dostęp z zewnątrz
-  (globalThis as any).__validateUmowaForm = validate;
+  if (typeof window !== "undefined") {
+    window.__validateUmowaForm = validate;
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
