@@ -1,13 +1,13 @@
-// app/contracts/standard/FormularzDaneUmowy.tsx
 "use client";
 
-import { Umowa } from "@/app/contracts/grid/types";
-import { useState, useEffect } from "react";
-
-type Props = {
-  umowa: Umowa;
-  onChange: (dane: UmowaFormDataFragment) => void;
-};
+import {
+  Umowa,
+  Kontrahent,
+  User,
+  OrganizationalUnit,
+} from "@/app/contracts/grid/types";
+import { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export type UmowaFormDataFragment = {
   numer: string;
@@ -19,6 +19,11 @@ export type UmowaFormDataFragment = {
   kontrahent_id?: number;
   opiekun_id?: number;
   jednostka_organizacyjna_id?: number;
+};
+
+type Props = {
+  umowa: Umowa;
+  onChange: (dane: UmowaFormDataFragment) => void;
 };
 
 export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
@@ -34,16 +39,48 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
     jednostka_organizacyjna_id: umowa.jednostka_organizacyjna?.id,
   });
 
+  const [kontrahenci, setKontrahenci] = useState<Kontrahent[]>([]);
+  const [uzytkownicy, setUzytkownicy] = useState<User[]>([]);
+  const [jednostki, setJednostki] = useState<OrganizationalUnit[]>([]);
+
   useEffect(() => {
     onChange(formData);
-  }, [formData , onChange]);
+  }, [formData, onChange]);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const [kontrahenciRes, uzytkownicyRes, jednostkiRes] =
+          await Promise.all([
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/kontrahenci/`
+            ),
+            fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/users/`),
+            fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/orgunits/`),
+          ]);
+
+        if (!kontrahenciRes.ok || !uzytkownicyRes.ok || !jednostkiRes.ok) {
+          throw new Error("Błąd podczas pobierania danych słownikowych");
+        }
+
+        setKontrahenci(await kontrahenciRes.json());
+        setUzytkownicy(await uzytkownicyRes.json());
+        setJednostki(await jednostkiRes.json());
+      } catch (err) {
+        console.error("❌ Błąd pobierania danych słownikowych:", err);
+      }
+    };
+
+    fetchAll();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, type, value } = e.target;
+    const { name, value, type } = e.target;
     const newValue =
       type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(newValue) : newValue,
@@ -54,14 +91,16 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
     <fieldset className="space-y-4 border p-4 rounded">
       <legend className="font-semibold text-lg">Dane umowy</legend>
 
-      <input
-        type="text"
-        name="numer"
-        value={formData.numer}
-        onChange={handleChange}
-        className="border rounded px-2 py-1 w-full"
-        placeholder="Numer CRB"
-      />
+      <div>
+        <label className="block font-medium">Numer umowy</label>
+        <input
+          type="text"
+          name="numer"
+          value={formData.numer}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        />
+      </div>
 
       <div className="flex flex-wrap gap-4">
         {[
@@ -83,7 +122,7 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
       </div>
 
       <div>
-        <label className="block">Data kontynuacji</label>
+        <label className="block font-medium">Data kontynuacji</label>
         <input
           type="date"
           name="wymagana_data_kontynuacji"
@@ -94,30 +133,56 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input
-          type="number"
-          name="kontrahent_id"
-          value={formData.kontrahent_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-          placeholder="ID kontrahenta"
-        />
-        <input
-          type="number"
-          name="opiekun_id"
-          value={formData.opiekun_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-          placeholder="ID opiekuna"
-        />
-        <input
-          type="number"
-          name="jednostka_organizacyjna_id"
-          value={formData.jednostka_organizacyjna_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-          placeholder="ID jednostki"
-        />
+        <div>
+          <label className="block font-medium">Kontrahent</label>
+          <select
+            name="kontrahent_id"
+            value={formData.kontrahent_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {kontrahenci.map((k) => (
+              <option key={k.id} value={k.id}>
+                {k.nazwa}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium">Opiekun</label>
+          <select
+            name="opiekun_id"
+            value={formData.opiekun_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {uzytkownicy.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.username}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium">Jednostka organizacyjna</label>
+          <select
+            name="jednostka_organizacyjna_id"
+            value={formData.jednostka_organizacyjna_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {jednostki.map((j) => (
+              <option key={j.id} value={j.id}>
+                {j.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </fieldset>
   );
