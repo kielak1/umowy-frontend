@@ -1,20 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Zamowienie } from "@/app/contracts/grid/types";
+import { Zamowienie, ZamowienieDoForm } from "@/app/contracts/grid/types";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export function useZamowieniaForm(
   zamowieniaWejsciowe: Zamowienie[],
   umowaId: number
 ) {
-  const [zamowienia, setZamowienia] =
-    useState<Zamowienie[]>(zamowieniaWejsciowe);
+  const [zamowienia, setZamowienia] = useState<ZamowienieDoForm[]>(
+    zamowieniaWejsciowe.map((z) => ({ ...z })) as ZamowienieDoForm[]
+  );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setZamowienia(zamowieniaWejsciowe);
+    setZamowienia(
+      zamowieniaWejsciowe.map((z) => ({ ...z })) as ZamowienieDoForm[]
+    );
   }, [zamowieniaWejsciowe]);
 
   const zapiszZamowienia = async () => {
@@ -38,25 +42,17 @@ export function useZamowieniaForm(
     try {
       const responses = await Promise.all(
         zamowienia.map((z) => {
-          const method = z.id && z.id > 0 ? "PATCH" : "POST";
-          const payload = { ...z, umowa: umowaId };
-          return method === "PATCH"
-            ? fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${z.id}/`,
-                {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              )
-            : fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
+          const method = z.id ? "PATCH" : "POST";
+          const url =
+            method === "PATCH"
+              ? `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${z.id}/` // PATCH z końcowym slashem
+              : `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/`; // POST na kolekcję
+
+          return fetchWithAuth(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(z),
+          });
         })
       );
 
@@ -64,7 +60,7 @@ export function useZamowieniaForm(
       if (failed) {
         const idx = responses.findIndex((r) => r === failed);
         const body = await failed.text();
-        console.error("❌ Błąd zapisu zamówień:", zamowienia[idx], body);
+        console.error("❌ Błąd zapisu zamówienia:", zamowienia[idx], body);
         throw new Error("Nie udało się zapisać niektórych zamówień");
       }
 
@@ -78,7 +74,7 @@ export function useZamowieniaForm(
     }
   };
 
-  const handleChange = (index: number, updated: Zamowienie) => {
+  const handleChange = (index: number, updated: ZamowienieDoForm) => {
     const kopia = [...zamowienia];
     kopia[index] = updated;
     setZamowienia(kopia);
@@ -94,7 +90,6 @@ export function useZamowieniaForm(
     setZamowienia((prev) => [
       ...prev,
       {
-        id: Date.now(),
         numer_zamowienia: "",
         data_zlozenia: "",
         data_realizacji: null,

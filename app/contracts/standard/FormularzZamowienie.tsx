@@ -1,9 +1,9 @@
-import { Zamowienie } from "@/app/contracts/grid/types";
+import { ZamowienieDoForm } from "@/app/contracts/grid/types";
 
 type Props = {
   index: number;
-  zamowienie: Zamowienie;
-  onChange: (index: number, updated: Zamowienie) => void;
+  zamowienie: ZamowienieDoForm;
+  onChange: (index: number, updated: ZamowienieDoForm) => void;
   onDelete: (index: number) => void;
 };
 

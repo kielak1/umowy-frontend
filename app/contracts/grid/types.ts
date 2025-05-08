@@ -146,3 +146,16 @@ export type ZmianaUmowaDoForm = {
 
   umowa: number;
 };
+
+export type ZamowienieDoForm = {
+  id?: number;
+  numer_zamowienia: string;
+  data_zlozenia: string;
+  data_realizacji: string | null;
+  kwota_netto: string;
+  waluta: "PLN" | "EUR" | "USD";
+  opis: string;
+  przedmiot: string | null;
+  producenci: string | null;
+  umowa: number;
+};
