@@ -15,6 +15,12 @@ export default function FormularzZmiana({
   onChange,
   onDelete,
 }: Props) {
+  const isInvalid = {
+    data_zawarcia: !zmiana.data_zawarcia,
+    data_obowiazywania_od: !zmiana.data_obowiazywania_od,
+    kwota_netto: zmiana.kwota_netto === null || zmiana.kwota_netto === "",
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -54,10 +60,13 @@ export default function FormularzZmiana({
         <input
           type="date"
           name="data_zawarcia"
-          value={zmiana.data_zawarcia}
+          value={zmiana.data_zawarcia ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1"
         />
+        {isInvalid.data_zawarcia && (
+          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
+        )}
       </div>
 
       <div>
@@ -65,10 +74,13 @@ export default function FormularzZmiana({
         <input
           type="date"
           name="data_obowiazywania_od"
-          value={zmiana.data_obowiazywania_od}
+          value={zmiana.data_obowiazywania_od ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1"
         />
+        {isInvalid.data_obowiazywania_od && (
+          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
+        )}
       </div>
 
       <div>
@@ -87,10 +99,13 @@ export default function FormularzZmiana({
         <input
           type="number"
           name="kwota_netto"
-          value={zmiana.kwota_netto}
+          value={zmiana.kwota_netto ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1"
         />
+        {isInvalid.kwota_netto && (
+          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
+        )}
       </div>
 
       <div>
@@ -111,7 +126,7 @@ export default function FormularzZmiana({
         <label className="block font-medium">Opis</label>
         <textarea
           name="opis"
-          value={zmiana.opis}
+          value={zmiana.opis ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full"
         />

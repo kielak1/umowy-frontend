@@ -22,7 +22,7 @@ export default function FormularzZmianyList({
 
       {zmiany.map((zm, idx) => (
         <FormularzZmiana
-          key={zm.id}
+          key={zm.id ?? `nowa-${idx}`}
           index={idx}
           zmiana={zm}
           onChange={onChange}

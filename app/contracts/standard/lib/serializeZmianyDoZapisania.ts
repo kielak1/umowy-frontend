@@ -1,4 +1,4 @@
-import { ZmianaUmowaDoForm } from "@/app/contracts/grid/types"; // typ pomocniczy poniżej
+import { ZmianaUmowaDoForm } from "@/app/contracts/grid/types";
 
 type ZmianaDoZapisu = {
   id?: number;
@@ -31,29 +31,41 @@ type ZmianaDoZapisu = {
 export function serializeZmianyDoZapisania(
   zmiany: ZmianaUmowaDoForm[]
 ): ZmianaDoZapisu[] {
-  return zmiany.map((z) => ({
-    id: z.id > 0 ? z.id : undefined,
-    rodzaj: z.rodzaj,
-    data_zawarcia: z.data_zawarcia,
-    data_obowiazywania_od: z.data_obowiazywania_od,
-    data_obowiazywania_do: z.data_obowiazywania_do,
-    kwota_netto: z.kwota_netto,
-    waluta: z.waluta,
-    opis: z.opis,
-    przedmiot: z.przedmiot,
-    producenci: z.producenci,
-    numer_umowy_dostawcy: z.numer_umowy_dostawcy,
+  return zmiany.map((z) => {
+    const oczyszczoneObszary = (z.obszary_funkcjonalne_ids ?? []).filter(
+      (id): id is number => id !== null && id !== undefined
+    );
 
-    kategoria_id: z.kategoria_id ?? null,
-    wlasciciel_id: z.wlasciciel_id ?? null,
-    status_id: z.status_id ?? null,
-    klasyfikacja_id: z.klasyfikacja_id ?? null,
-    obszary_funkcjonalne_ids: z.obszary_funkcjonalne_ids ?? [],
+    const zmiana: ZmianaDoZapisu = {
+      id: z.id && z.id > 0 ? z.id : undefined,
+      rodzaj: z.rodzaj,
+      data_zawarcia: z.data_zawarcia!,
+      data_obowiazywania_od: z.data_obowiazywania_od!,
+      data_obowiazywania_do: z.data_obowiazywania_do,
+      kwota_netto: z.kwota_netto!,
+      waluta: z.waluta,
+      opis: z.opis ?? "",
+      przedmiot: z.przedmiot,
+      producenci: z.producenci,
+      numer_umowy_dostawcy: z.numer_umowy_dostawcy,
 
-    data_podpisania: z.data_podpisania,
-    data_wypowiedzenia: z.data_wypowiedzenia,
-    trzeba_wypowiedziec: z.trzeba_wypowiedziec,
-    finansowanie_do: z.finansowanie_do,
-    umowa: z.umowa,
-  }));
+      kategoria_id: z.kategoria_id ?? null,
+      wlasciciel_id: z.wlasciciel_id ?? null,
+      status_id: z.status_id ?? null,
+      klasyfikacja_id: z.klasyfikacja_id ?? null,
+
+      data_podpisania: z.data_podpisania,
+      data_wypowiedzenia: z.data_wypowiedzenia,
+      trzeba_wypowiedziec: z.trzeba_wypowiedziec,
+      finansowanie_do: z.finansowanie_do,
+      umowa: z.umowa,
+    };
+
+    // tylko jeśli istnieją jakiekolwiek ID – dodaj pole
+    if (oczyszczoneObszary.length > 0) {
+      zmiana.obszary_funkcjonalne_ids = oczyszczoneObszary;
+    }
+
+    return zmiana;
+  });
 }

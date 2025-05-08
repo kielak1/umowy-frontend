@@ -112,14 +112,14 @@ export interface UmowaFormData {
 }
 
 export type ZmianaUmowaDoForm = {
-  id: number;
+  id?: number;
   rodzaj: string;
-  data_zawarcia: string;
-  data_obowiazywania_od: string;
+  data_zawarcia: string | null;
+  data_obowiazywania_od: string | null;
   data_obowiazywania_do: string | null;
-  kwota_netto: string;
+  kwota_netto: string | null;
   waluta: "PLN" | "EUR" | "USD";
-  opis: string;
+  opis: string | null;
 
   przedmiot: string | null;
   producenci: string | null;
@@ -129,7 +129,7 @@ export type ZmianaUmowaDoForm = {
   wlasciciel_id?: number | null;
   status_id?: number | null;
   klasyfikacja_id?: number | null;
-  obszary_funkcjonalne_ids?: number[];
+  obszary_funkcjonalne_ids?: number[] | null;
 
   data_podpisania: string | null;
   data_wypowiedzenia: string | null;

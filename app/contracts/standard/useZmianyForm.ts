@@ -45,11 +45,29 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
   const zapiszZmiany = async () => {
     setLoading(true);
     setError(null);
+
+    // WALIDACJA POL OBOWIAZKOWYCH PRZED FETCH
+    const niepoprawne = zmiany.filter(
+      (z) =>
+        !z.data_zawarcia ||
+        !z.data_obowiazywania_od ||
+        z.kwota_netto === null ||
+        z.kwota_netto === ""
+    );
+
+    if (niepoprawne.length > 0) {
+      setError("Uzupełnij wymagane pola we wszystkich zmianach");
+      setLoading(false);
+      return false; // 🚫 BLOKUJEMY FETCH
+    }
     try {
       const prepared = serializeZmianyDoZapisania(zmiany);
       const responses = await Promise.all(
-        prepared.map((z) =>
-          z.id
+        prepared.map((z) => {
+          const method =
+            z.id && typeof z.id === "number" && z.id > 0 ? "PATCH" : "POST";
+          console.log(">> TRY", method, z);
+          return method === "PATCH"
             ? fetchWithAuth(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${z.id}/`,
                 {
@@ -62,11 +80,21 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(z),
-              })
-        )
+              });
+        })
       );
+      console.log("ZMIANY DO ZAPISU", prepared);
       const failed = responses.find((r) => !r.ok);
-      if (failed) throw new Error("Nie udało się zapisać niektórych zmian");
+      if (failed) {
+        const index = responses.findIndex((r) => r === failed);
+        const responseBody = await failed.text();
+
+        console.error("❌ Błąd zapisu zmian:");
+        console.error("⛔ Zmiana:", prepared[index]);
+        console.error("⛔ Odpowiedź z backendu:", responseBody);
+
+        throw new Error("Nie udało się zapisać niektórych zmian");
+      }
       return true;
     } catch (err) {
       console.error(err);
@@ -93,12 +121,11 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
     setZmiany((prev) => [
       ...prev,
       {
-        id: Date.now(),
         rodzaj: "umowa",
-        data_zawarcia: "",
-        data_obowiazywania_od: "",
+        data_zawarcia: null,
+        data_obowiazywania_od: null,
         data_obowiazywania_do: null,
-        kwota_netto: "",
+        kwota_netto: null,
         waluta: "PLN",
         opis: "",
         przedmiot: null,
@@ -108,7 +135,7 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
         wlasciciel_id: null,
         status_id: null,
         klasyfikacja_id: null,
-        obszary_funkcjonalne_ids: [],
+        obszary_funkcjonalne_ids: null,
         data_podpisania: null,
         data_wypowiedzenia: null,
         trzeba_wypowiedziec: false,
