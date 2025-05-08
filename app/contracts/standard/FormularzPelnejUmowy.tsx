@@ -5,6 +5,10 @@ import { useState, useEffect } from "react";
 import FormularzZmianyList from "./FormularzZmianyList";
 import FormularzZamowieniaList from "./FormularzZamowieniaList";
 import { useZmianyForm } from "./useZmianyForm";
+import FormularzDaneUmowy, {
+  UmowaFormDataFragment,
+} from "./FormularzDaneUmowy";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 type Props = {
   umowa: Umowa;
@@ -17,14 +21,28 @@ export default function FormularzPelnejUmowy({
   zmiany,
   zamowienia,
 }: Props) {
-  const [formData, setFormData] = useState({
-    numer: umowa.numer,
-    czy_ramowa: umowa.czy_ramowa,
-    czy_dotyczy_konkretnych_uslug: umowa.czy_dotyczy_konkretnych_uslug,
-    czy_spelnia_dora: umowa.czy_spelnia_dora,
-    czy_wymaga_kontynuacji: umowa.czy_wymaga_kontynuacji,
-    wymagana_data_kontynuacji: umowa.wymagana_data_kontynuacji ?? "",
-  });
+  const [umowaData, setUmowaData] = useState<UmowaFormDataFragment | null>(
+    null
+  );
+
+  const handleZapiszUmowe = async () => {
+    if (!umowaData) return;
+    try {
+      const res = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/${umowa.id}/`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(umowaData),
+        }
+      );
+      if (!res.ok) throw new Error("Błąd zapisu umowy");
+      alert("Zapisano dane umowy");
+    } catch (err) {
+      console.error(err);
+      alert("Błąd zapisu danych umowy");
+    }
+  };
 
   const {
     zmiany: zmianyForm,
@@ -42,21 +60,6 @@ export default function FormularzPelnejUmowy({
     console.log("Zawartość zamówień:", zamowienia);
   }, [zmianyForm, zamowienia]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, type, value } = e.target;
-    const newValue =
-      type === "checkbox" && "checked" in e.target
-        ? (e.target as HTMLInputElement).checked
-        : value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  };
-
   const handleZapisz = async () => {
     const ok = await zapiszZmiany();
     if (ok) alert("Zapisano zmiany umowy");
@@ -64,51 +67,14 @@ export default function FormularzPelnejUmowy({
 
   return (
     <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-      <h2 className="text-lg font-semibold">Podstawowe dane umowy</h2>
-
-      <div>
-        <label className="block font-medium">Numer</label>
-        <input
-          type="text"
-          name="numer"
-          value={formData.numer}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        />
-      </div>
-
-      <div className="flex gap-4 flex-wrap">
-        {[
-          { name: "czy_ramowa", label: "Ramowa" },
-          {
-            name: "czy_dotyczy_konkretnych_uslug",
-            label: "Dotyczy konkretnych usług",
-          },
-          { name: "czy_spelnia_dora", label: "Spełnia DORA" },
-          { name: "czy_wymaga_kontynuacji", label: "Wymaga kontynuacji" },
-        ].map(({ name, label }) => (
-          <label key={name} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name={name}
-              checked={formData[name as keyof typeof formData] as boolean}
-              onChange={handleChange}
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
-      <div>
-        <label className="block font-medium">Data kontynuacji</label>
-        <input
-          type="date"
-          name="wymagana_data_kontynuacji"
-          value={formData.wymagana_data_kontynuacji}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-      </div>
+      <FormularzDaneUmowy umowa={umowa} onChange={setUmowaData} />
+      <button
+        type="button"
+        onClick={handleZapiszUmowe}
+        className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        Zapisz dane umowy
+      </button>
 
       <FormularzZmianyList
         zmiany={zmianyForm}
