@@ -28,6 +28,10 @@ export default function FormularzPelnejUmowy({
   const handleZapiszUmowe = async () => {
     if (!umowaData) return;
     try {
+      if (!window.__validateUmowaForm?.()) {
+        return;
+      }
+
       const res = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/${umowa.id}/`,
         {

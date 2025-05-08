@@ -1,3 +1,12 @@
+// types/global.d.ts
+export {};
+
+declare global {
+  interface Window {
+    __validateUmowaForm?: () => boolean;
+  }
+}
+
 export interface Kontrahent {
   id: number;
   nazwa: string;

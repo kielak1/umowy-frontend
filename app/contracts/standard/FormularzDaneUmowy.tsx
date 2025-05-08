@@ -39,6 +39,7 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
     jednostka_organizacyjna_id: umowa.jednostka_organizacyjna?.id,
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [kontrahenci, setKontrahenci] = useState<Kontrahent[]>([]);
   const [uzytkownicy, setUzytkownicy] = useState<User[]>([]);
   const [jednostki, setJednostki] = useState<OrganizationalUnit[]>([]);
@@ -74,6 +75,21 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
     fetchAll();
   }, []);
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.numer.trim()) newErrors.numer = "Numer umowy jest wymagany";
+    if (!formData.kontrahent_id)
+      newErrors.kontrahent_id = "Wybierz kontrahenta";
+    if (!formData.opiekun_id) newErrors.opiekun_id = "Wybierz opiekuna";
+    if (!formData.jednostka_organizacyjna_id)
+      newErrors.jednostka_organizacyjna_id = "Wybierz jednostkę organizacyjną";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // do walidacji dostęp z zewnątrz
+  (globalThis as any).__validateUmowaForm = validate;
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -92,7 +108,7 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
       <legend className="font-semibold text-lg">Dane umowy</legend>
 
       <div>
-        <label className="block font-medium">Numer umowy</label>
+        <label className="block font-medium">Numer umowy *</label>
         <input
           type="text"
           name="numer"
@@ -100,6 +116,7 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full"
         />
+        {errors.numer && <p className="text-red-600 text-sm">{errors.numer}</p>}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -134,7 +151,7 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block font-medium">Kontrahent</label>
+          <label className="block font-medium">Kontrahent *</label>
           <select
             name="kontrahent_id"
             value={formData.kontrahent_id ?? ""}
@@ -148,10 +165,13 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
               </option>
             ))}
           </select>
+          {errors.kontrahent_id && (
+            <p className="text-red-600 text-sm">{errors.kontrahent_id}</p>
+          )}
         </div>
 
         <div>
-          <label className="block font-medium">Opiekun</label>
+          <label className="block font-medium">Opiekun *</label>
           <select
             name="opiekun_id"
             value={formData.opiekun_id ?? ""}
@@ -165,10 +185,13 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
               </option>
             ))}
           </select>
+          {errors.opiekun_id && (
+            <p className="text-red-600 text-sm">{errors.opiekun_id}</p>
+          )}
         </div>
 
         <div>
-          <label className="block font-medium">Jednostka organizacyjna</label>
+          <label className="block font-medium">Jednostka organizacyjna *</label>
           <select
             name="jednostka_organizacyjna_id"
             value={formData.jednostka_organizacyjna_id ?? ""}
@@ -182,6 +205,11 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
               </option>
             ))}
           </select>
+          {errors.jednostka_organizacyjna_id && (
+            <p className="text-red-600 text-sm">
+              {errors.jednostka_organizacyjna_id}
+            </p>
+          )}
         </div>
       </div>
     </fieldset>
