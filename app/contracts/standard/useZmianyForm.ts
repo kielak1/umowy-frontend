@@ -46,7 +46,6 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
     setLoading(true);
     setError(null);
 
-    // WALIDACJA POL OBOWIAZKOWYCH PRZED FETCH
     const niepoprawne = zmiany.filter(
       (z) =>
         !z.data_zawarcia ||
@@ -58,43 +57,38 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
     if (niepoprawne.length > 0) {
       setError("Uzupełnij wymagane pola we wszystkich zmianach");
       setLoading(false);
-      return false; // 🚫 BLOKUJEMY FETCH
+      return false;
     }
+
     try {
       const prepared = serializeZmianyDoZapisania(zmiany);
-      const responses = await Promise.all(
-        prepared.map((z) => {
-          const method =
-            z.id && typeof z.id === "number" && z.id > 0 ? "PATCH" : "POST";
-          console.log(">> TRY", method, z);
-          return method === "PATCH"
-            ? fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${z.id}/`,
-                {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(z),
-                }
-              )
-            : fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(z),
-              });
-        })
-      );
-      console.log("ZMIANY DO ZAPISU", prepared);
-      const failed = responses.find((r) => !r.ok);
-      if (failed) {
-        const index = responses.findIndex((r) => r === failed);
-        const responseBody = await failed.text();
+      const updatedList: ZmianaUmowaDoForm[] = [];
 
-        console.error("❌ Błąd zapisu zmian:");
-        console.error("⛔ Zmiana:", prepared[index]);
-        console.error("⛔ Odpowiedź z backendu:", responseBody);
+      for (const z of prepared) {
+        const method = z.id ? "PATCH" : "POST";
+        const url =
+          method === "PATCH"
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${z.id}/`
+            : `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/`;
 
-        throw new Error("Nie udało się zapisać niektórych zmian");
+        const res = await fetchWithAuth(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(z),
+        });
+
+        if (!res.ok) {
+          const body = await res.text();
+          console.error("❌ Błąd zapisu zmian:", z, body);
+          throw new Error("Nie udało się zapisać niektórych zmian");
+        }
+
+        const saved = await res.json();
+        updatedList.push(saved);
       }
+
+      // 🔄 Ustaw zaktualizowaną listę z backendu
+      setZmiany(updatedList);
       return true;
     } catch (err) {
       console.error(err);

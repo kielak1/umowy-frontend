@@ -68,7 +68,7 @@ export default function UmowaEdycjaClient() {
   }
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-7xl mx-auto">
       <FormularzPelnejUmowy
         umowa={umowa}
         zmiany={zmiany}

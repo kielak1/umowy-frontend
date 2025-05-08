@@ -109,49 +109,21 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
     <fieldset className="space-y-4 border p-4 rounded">
       <legend className="font-semibold text-lg">Dane umowy</legend>
 
-      <div>
-        <label className="block font-medium">Numer umowy *</label>
-        <input
-          type="text"
-          name="numer"
-          value={formData.numer}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        />
-        {errors.numer && <p className="text-red-600 text-sm">{errors.numer}</p>}
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Numer umowy *</label>
+          <input
+            type="text"
+            name="numer"
+            value={formData.numer}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          />
+          {errors.numer && (
+            <p className="text-red-600 text-sm">{errors.numer}</p>
+          )}
+        </div>
 
-      <div className="flex flex-wrap gap-4">
-        {[
-          ["czy_ramowa", "Ramowa"],
-          ["czy_dotyczy_konkretnych_uslug", "Dotyczy konkretnych usług"],
-          ["czy_spelnia_dora", "Spełnia DORA"],
-          ["czy_wymaga_kontynuacji", "Wymaga kontynuacji"],
-        ].map(([name, label]) => (
-          <label key={name} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name={name}
-              checked={formData[name as keyof typeof formData] as boolean}
-              onChange={handleChange}
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
-      <div>
-        <label className="block font-medium">Data kontynuacji</label>
-        <input
-          type="date"
-          name="wymagana_data_kontynuacji"
-          value={formData.wymagana_data_kontynuacji ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block font-medium">Kontrahent *</label>
           <select
@@ -171,47 +143,85 @@ export default function FormularzDaneUmowy({ umowa, onChange }: Props) {
             <p className="text-red-600 text-sm">{errors.kontrahent_id}</p>
           )}
         </div>
+      </div>
 
-        <div>
-          <label className="block font-medium">Opiekun *</label>
-          <select
-            name="opiekun_id"
-            value={formData.opiekun_id ?? ""}
-            onChange={handleChange}
-            className="border rounded px-2 py-1 w-full"
-          >
-            <option value="">-- wybierz --</option>
-            {uzytkownicy.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.username}
-              </option>
-            ))}
-          </select>
-          {errors.opiekun_id && (
-            <p className="text-red-600 text-sm">{errors.opiekun_id}</p>
-          )}
+      <div className="flex flex-wrap gap-4">
+        {[
+          ["czy_ramowa", "Ramowa"],
+          ["czy_dotyczy_konkretnych_uslug", "Dotyczy konkretnych usług"],
+          ["czy_spelnia_dora", "Spełnia DORA"],
+          ["czy_wymaga_kontynuacji", "Wymaga kontynuacji"],
+        ].map(([name, label]) => (
+          <label key={name} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name={name}
+              checked={formData[name as keyof typeof formData] as boolean}
+              onChange={handleChange}
+            />
+            {label}
+          </label>
+        ))}
+
+        {formData.czy_wymaga_kontynuacji && (
+          <div className="flex items-center gap-4 border p-2 rounded">
+            <label className="font-medium w-48">Data kontynuacji</label>
+            <input
+              type="date"
+              name="wymagana_data_kontynuacji"
+              value={formData.wymagana_data_kontynuacji ?? ""}
+              onChange={handleChange}
+              className="border rounded px-2 py-1 flex-1"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex items-center gap-4 border p-2 rounded">
+          <label className="font-medium w-48">Opiekun *</label>
+          <div className="flex-1">
+            <select
+              name="opiekun_id"
+              value={formData.opiekun_id ?? ""}
+              onChange={handleChange}
+              className="border rounded px-2 py-1 w-full"
+            >
+              <option value="">-- wybierz --</option>
+              {uzytkownicy.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.username}
+                </option>
+              ))}
+            </select>
+            {errors.opiekun_id && (
+              <p className="text-red-600 text-sm">{errors.opiekun_id}</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label className="block font-medium">Jednostka organizacyjna *</label>
-          <select
-            name="jednostka_organizacyjna_id"
-            value={formData.jednostka_organizacyjna_id ?? ""}
-            onChange={handleChange}
-            className="border rounded px-2 py-1 w-full"
-          >
-            <option value="">-- wybierz --</option>
-            {jednostki.map((j) => (
-              <option key={j.id} value={j.id}>
-                {j.name}
-              </option>
-            ))}
-          </select>
-          {errors.jednostka_organizacyjna_id && (
-            <p className="text-red-600 text-sm">
-              {errors.jednostka_organizacyjna_id}
-            </p>
-          )}
+        <div className="flex items-center gap-4 border p-2 rounded">
+          <label className="font-medium w-48">Jednostka organizacyjna *</label>
+          <div className="flex-1">
+            <select
+              name="jednostka_organizacyjna_id"
+              value={formData.jednostka_organizacyjna_id ?? ""}
+              onChange={handleChange}
+              className="border rounded px-2 py-1 w-full"
+            >
+              <option value="">-- wybierz --</option>
+              {jednostki.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.name}
+                </option>
+              ))}
+            </select>
+            {errors.jednostka_organizacyjna_id && (
+              <p className="text-red-600 text-sm">
+                {errors.jednostka_organizacyjna_id}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </fieldset>
