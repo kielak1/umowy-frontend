@@ -27,6 +27,13 @@ export default function FormularzPelnejUmowy({
 
   const handleZapiszUmowe = async () => {
     if (!umowaData) return;
+    const payload = {
+      ...umowaData,
+      wymagana_data_kontynuacji:
+        umowaData.wymagana_data_kontynuacji?.trim() === ""
+          ? null
+          : umowaData.wymagana_data_kontynuacji,
+    };
     try {
       if (!window.__validateUmowaForm?.()) {
         return;
@@ -37,7 +44,7 @@ export default function FormularzPelnejUmowy({
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(umowaData),
+          body: JSON.stringify(payload),
         }
       );
       if (!res.ok) throw new Error("Błąd zapisu umowy");
