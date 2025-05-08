@@ -40,29 +40,42 @@ export function useZamowieniaForm(
     }
 
     try {
-      const responses = await Promise.all(
-        zamowienia.map((z) => {
-          const method = z.id ? "PATCH" : "POST";
-          const url =
-            method === "PATCH"
-              ? `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${z.id}/` // PATCH z końcowym slashem
-              : `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/`; // POST na kolekcję
+      const updatedList: ZamowienieDoForm[] = [];
 
-          return fetchWithAuth(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(z),
-          });
+      for (const z of zamowienia) {
+        const method = z.id ? "PATCH" : "POST";
+        const url =
+          method === "PATCH"
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${z.id}/`
+            : `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/`;
+
+        const res = await fetchWithAuth(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(z),
+        });
+
+        if (!res.ok) {
+          const body = await res.text();
+          console.error("❌ Błąd zapisu zamówienia:", z, body);
+          throw new Error("Nie udało się zapisać niektórych zamówień");
+        }
+
+        const saved = await res.json();
+        updatedList.push({ ...saved });
+      }
+
+      // 🔄 aktualizacja lokalnego stanu bez dublowania
+      setZamowienia((prev) =>
+        prev.map((z) => {
+          const match = updatedList.find(
+            (u) =>
+              u.id === z.id ||
+              (!z.id && u.numer_zamowienia === z.numer_zamowienia)
+          );
+          return match ?? z;
         })
       );
-
-      const failed = responses.find((r) => !r.ok);
-      if (failed) {
-        const idx = responses.findIndex((r) => r === failed);
-        const body = await failed.text();
-        console.error("❌ Błąd zapisu zamówienia:", zamowienia[idx], body);
-        throw new Error("Nie udało się zapisać niektórych zamówień");
-      }
 
       return true;
     } catch (err) {
