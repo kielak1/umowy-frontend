@@ -35,9 +35,7 @@ export default function FormularzPelnejUmowy({
           : umowaData.wymagana_data_kontynuacji,
     };
     try {
-      if (!window.__validateUmowaForm?.()) {
-        return;
-      }
+      if (!window.__validateUmowaForm?.()) return;
 
       const res = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/${umowa.id}/`,
@@ -61,8 +59,8 @@ export default function FormularzPelnejUmowy({
     handleZmianaDelete,
     handleZmianaAdd,
     zapiszZmiany,
-    loading,
-    error,
+    loading: loadingZmiany,
+    error: errorZmiany,
   } = useZmianyForm(zmiany, umowa.id);
 
   // Logowanie zawartości zmian i zamówień do konsoli
@@ -71,7 +69,7 @@ export default function FormularzPelnejUmowy({
     console.log("Zawartość zamówień:", zamowienia);
   }, [zmianyForm, zamowienia]);
 
-  const handleZapisz = async () => {
+  const handleZapiszZmiany = async () => {
     const ok = await zapiszZmiany();
     if (ok) alert("Zapisano zmiany umowy");
   };
@@ -94,18 +92,17 @@ export default function FormularzPelnejUmowy({
         onAdd={handleZmianaAdd}
       />
 
-      <FormularzZamowieniaList initialZamowienia={zamowienia} />
-
-      {error && <div className="text-red-600">{error}</div>}
-
+      {errorZmiany && <div className="text-red-600">{errorZmiany}</div>}
       <button
         type="button"
-        onClick={handleZapisz}
-        disabled={loading}
+        onClick={handleZapiszZmiany}
+        disabled={loadingZmiany}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
-        {loading ? "Zapisywanie..." : "Zapisz zmiany"}
+        {loadingZmiany ? "Zapisywanie..." : "Zapisz zmiany"}
       </button>
+
+      <FormularzZamowieniaList zamowienia={zamowienia} umowaId={umowa.id} />
     </form>
   );
 }

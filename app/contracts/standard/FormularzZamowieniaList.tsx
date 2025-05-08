@@ -1,70 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Zamowienie } from "@/app/contracts/grid/types";
+import { useZamowieniaForm } from "./useZamowieniaForm";
 import FormularzZamowienie from "./FormularzZamowienie";
+import { Zamowienie } from "@/app/contracts/grid/types";
 
 type Props = {
-  initialZamowienia: Zamowienie[];
+  zamowienia: Zamowienie[];
+  umowaId: number;
 };
 
-export default function FormularzZamowieniaList({ initialZamowienia }: Props) {
-  const [zamowienia, setZamowienia] = useState<Zamowienie[]>([]);
+export default function FormularzZamowieniaList({
+  zamowienia,
+  umowaId,
+}: Props) {
+  const {
+    zamowienia: zamowieniaForm,
+    handleZamowienieAdd,
+    handleZamowienieChange,
+    handleZamowienieDelete,
+    zapiszZamowienia,
+    loading,
+    error,
+  } = useZamowieniaForm(zamowienia, umowaId);
 
-  useEffect(() => {
-    setZamowienia(initialZamowienia);
-  }, [initialZamowienia]);
-
-  const handleChange = (index: number, updated: Zamowienie) => {
-    const kopia = [...zamowienia];
-    kopia[index] = updated;
-    setZamowienia(kopia);
-  };
-
-  const handleDelete = (index: number) => {
-    const kopia = [...zamowienia];
-    kopia.splice(index, 1);
-    setZamowienia(kopia);
-  };
-
-  const handleAdd = () => {
-    setZamowienia((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        numer_zamowienia: "",
-        data_zlozenia: "",
-        data_realizacji: null,
-        kwota_netto: "",
-        waluta: "PLN",
-        opis: "",
-        przedmiot: null,
-        producenci: null,
-        umowa: 0,
-      },
-    ]);
+  const handleZapisz = async () => {
+    const ok = await zapiszZamowienia();
+    if (ok) alert("Zapisano zamówienia");
   };
 
   return (
     <div className="space-y-4 mt-8">
       <h2 className="text-lg font-semibold">Zamówienia</h2>
 
-      {zamowienia.map((zam, idx) => (
+      {zamowieniaForm.map((zam, idx) => (
         <FormularzZamowienie
-          key={zam.id}
+          key={zam.id ?? `nowe-${idx}`}
           index={idx}
           zamowienie={zam}
-          onChange={handleChange}
-          onDelete={handleDelete}
+          onChange={handleZamowienieChange}
+          onDelete={handleZamowienieDelete}
         />
       ))}
 
       <button
         type="button"
-        onClick={handleAdd}
+        onClick={handleZamowienieAdd}
         className="text-blue-600 underline text-sm"
       >
         + Dodaj zamówienie
+      </button>
+
+      {error && <div className="text-red-600">{error}</div>}
+
+      <button
+        type="button"
+        onClick={handleZapisz}
+        disabled={loading}
+        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+      >
+        {loading ? "Zapisywanie..." : "Zapisz zamówienia"}
       </button>
     </div>
   );
