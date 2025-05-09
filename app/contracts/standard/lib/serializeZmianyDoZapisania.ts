@@ -14,11 +14,11 @@ type ZmianaDoZapisu = {
   producenci: string | null;
   numer_umowy_dostawcy: string | null;
 
-  kategoria_id?: number | null;
-  wlasciciel_id?: number | null;
-  status_id?: number | null;
-  klasyfikacja_id?: number | null;
-  obszary_funkcjonalne_ids?: number[];
+  kategoria_id: number | null;
+  wlasciciel_id: number | null;
+  status_id: number | null;
+  klasyfikacja_id: number | null;
+  obszary_funkcjonalne_ids: number[]; // zawsze obecne — nawet pusty []
 
   data_podpisania: string | null;
   data_wypowiedzenia: string | null;
@@ -32,11 +32,12 @@ export function serializeZmianyDoZapisania(
   zmiany: ZmianaUmowaDoForm[]
 ): ZmianaDoZapisu[] {
   return zmiany.map((z) => {
-    const oczyszczoneObszary = (z.obszary_funkcjonalne_ids ?? []).filter(
-      (id): id is number => id !== null && id !== undefined
-    );
+    const oczyszczoneObszary: number[] =
+      z.obszary_funkcjonalne_ids?.filter(
+        (id): id is number => id !== null && id !== undefined
+      ) ?? [];
 
-    const zmiana: ZmianaDoZapisu = {
+    return {
       id: z.id && z.id > 0 ? z.id : undefined,
       rodzaj: z.rodzaj,
       data_zawarcia: z.data_zawarcia!,
@@ -49,10 +50,12 @@ export function serializeZmianyDoZapisania(
       producenci: z.producenci,
       numer_umowy_dostawcy: z.numer_umowy_dostawcy,
 
+      // Słowniki — zawsze obecne jako null lub number
       kategoria_id: z.kategoria_id ?? null,
       wlasciciel_id: z.wlasciciel_id ?? null,
       status_id: z.status_id ?? null,
       klasyfikacja_id: z.klasyfikacja_id ?? null,
+      obszary_funkcjonalne_ids: oczyszczoneObszary,
 
       data_podpisania: z.data_podpisania,
       data_wypowiedzenia: z.data_wypowiedzenia,
@@ -60,12 +63,5 @@ export function serializeZmianyDoZapisania(
       finansowanie_do: z.finansowanie_do,
       umowa: z.umowa,
     };
-
-    // tylko jeśli istnieją jakiekolwiek ID – dodaj pole
-    if (oczyszczoneObszary.length > 0) {
-      zmiana.obszary_funkcjonalne_ids = oczyszczoneObszary;
-    }
-
-    return zmiana;
   });
 }

@@ -70,6 +70,8 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
           method === "PATCH"
             ? `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${z.id}/`
             : `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/`;
+        console.log("📤 PATCH/POST do:", url);
+        console.log("📤 Payload:", z);
 
         const res = await fetchWithAuth(url, {
           method,
@@ -84,7 +86,8 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
         }
 
         const saved = await res.json();
-        updatedList.push(saved);
+        const mapped = mapToForm(saved, z.umowa); // <== konwersja JSON → struktura formularza
+        updatedList.push(mapped);
       }
 
       // 🔄 Ustaw zaktualizowaną listę z backendu

@@ -43,10 +43,20 @@ export default function FormularzZmiana({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value, type } = e.target;
-    const newValue =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    onChange(index, { ...zmiana, [name]: newValue });
+    const rawValue = e.target.value;
+    const name = e.target.name;
+    let newValue: string | number | boolean | null = rawValue;
+
+    if (e.target.type === "checkbox") {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else if (name.endsWith("_id")) {
+      newValue = rawValue === "" ? null : parseInt(rawValue, 10);
+    }
+
+    onChange(index, {
+      ...zmiana,
+      [name]: newValue,
+    });
   };
 
   const handleMultiCheckboxChange = (id: number) => {
@@ -55,7 +65,10 @@ export default function FormularzZmiana({
     const nowe = isSelected
       ? aktualne.filter((x) => x !== id)
       : [...aktualne, id];
-    onChange(index, { ...zmiana, obszary_funkcjonalne_ids: nowe });
+    onChange(index, {
+      ...zmiana,
+      obszary_funkcjonalne_ids: nowe,
+    });
   };
 
   return (

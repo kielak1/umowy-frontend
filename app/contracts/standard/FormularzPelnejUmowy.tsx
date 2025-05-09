@@ -121,6 +121,7 @@ export default function FormularzPelnejUmowy({
   }, [zmianyForm, zamowienia]);
 
   const handleZapiszZmiany = async () => {
+    console.log("▶️ Uruchomiono handleZapiszZmiany");
     const ok = await zapiszZmiany();
     if (ok) alert("Zapisano zmiany umowy");
   };
