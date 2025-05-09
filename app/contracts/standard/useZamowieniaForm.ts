@@ -93,7 +93,29 @@ export function useZamowieniaForm(
     setZamowienia(kopia);
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = async (index: number) => {
+    const confirmed = confirm("Czy na pewno chcesz usunąć to zamówienie?");
+    if (!confirmed) return;
+
+    const toDelete = zamowienia[index];
+    if (toDelete.id) {
+      try {
+        const res = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/zamowienia/${toDelete.id}/`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) {
+          console.error("❌ Błąd usuwania zamówienia:", await res.text());
+          alert("Błąd podczas usuwania zamówienia z serwera");
+          return;
+        }
+      } catch (err) {
+        console.error("❌ Wyjątek przy usuwaniu zamówienia:", err);
+        alert("Wystąpił błąd sieci przy usuwaniu zamówienia");
+        return;
+      }
+    }
+
     const kopia = [...zamowienia];
     kopia.splice(index, 1);
     setZamowienia(kopia);

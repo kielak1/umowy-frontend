@@ -109,6 +109,16 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
   };
 
   const handleDelete = async (index: number) => {
+    if (zmiany.length === 1) {
+      alert(
+        "Nie można usunąć ostatniej zmiany. Umowa musi zawierać co najmniej jedną zmianę."
+      );
+      return;
+    }
+
+    const confirmed = confirm("Czy na pewno chcesz usunąć tę zmianę?");
+    if (!confirmed) return;
+
     const toDelete = zmiany[index];
     if (toDelete.id) {
       try {
