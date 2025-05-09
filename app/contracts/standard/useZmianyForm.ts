@@ -108,7 +108,26 @@ export function useZmianyForm(zmianyWejsciowe: ZmianaUmowy[], umowaId: number) {
     setZmiany(updatedList);
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = async (index: number) => {
+    const toDelete = zmiany[index];
+    if (toDelete.id) {
+      try {
+        const res = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${toDelete.id}/`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) {
+          console.error("❌ Błąd usuwania zmiany", await res.text());
+          alert("Błąd podczas usuwania zmiany z serwera");
+          return;
+        }
+      } catch (err) {
+        console.error("❌ Wyjątek przy usuwaniu zmiany:", err);
+        alert("Wystąpił błąd sieci przy usuwaniu zmiany");
+        return;
+      }
+    }
+
     const updatedList = [...zmiany];
     updatedList.splice(index, 1);
     setZmiany(updatedList);
