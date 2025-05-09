@@ -1,7 +1,16 @@
 "use client";
 
-import { Umowa, ZmianaUmowy, Zamowienie } from "@/app/contracts/grid/types";
 import { useState, useEffect } from "react";
+import {
+  Umowa,
+  ZmianaUmowy,
+  Zamowienie,
+  SlownikKategoriaUmowy,
+  SlownikWlasciciel,
+  SlownikStatusUmowy,
+  SlownikKlasyfikacjaUmowy,
+  SlownikObszarFunkcjonalny,
+} from "@/app/contracts/grid/types";
 import FormularzZmianyList from "./FormularzZmianyList";
 import FormularzZamowieniaList from "./FormularzZamowieniaList";
 import { useZmianyForm } from "./useZmianyForm";
@@ -24,6 +33,49 @@ export default function FormularzPelnejUmowy({
   const [umowaData, setUmowaData] = useState<UmowaFormDataFragment | null>(
     null
   );
+
+  const [kategorie, setKategorie] = useState<SlownikKategoriaUmowy[]>([]);
+  const [wlasciciele, setWlasciciele] = useState<SlownikWlasciciel[]>([]);
+  const [statusy, setStatusy] = useState<SlownikStatusUmowy[]>([]);
+  const [klasyfikacje, setKlasyfikacje] = useState<SlownikKlasyfikacjaUmowy[]>(
+    []
+  );
+  const [obszary, setObszary] = useState<SlownikObszarFunkcjonalny[]>([]);
+
+  useEffect(() => {
+    const fetchSlowniki = async () => {
+      try {
+        const [katRes, wlascRes, statRes, klasRes, obszRes] = await Promise.all(
+          [
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/slownikkategoriaumowy/`
+            ),
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/slownikwlasciciel/`
+            ),
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/slownikstatusumowy/`
+            ),
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/slownikklasyfikacjaumowy/`
+            ),
+            fetchWithAuth(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/slownikobszarfunkcjonalny/`
+            ),
+          ]
+        );
+        setKategorie(await katRes.json());
+        setWlasciciele(await wlascRes.json());
+        setStatusy(await statRes.json());
+        setKlasyfikacje(await klasRes.json());
+        setObszary(await obszRes.json());
+      } catch (err) {
+        console.error("❌ Błąd ładowania słowników", err);
+      }
+    };
+
+    fetchSlowniki();
+  }, []);
 
   const handleZapiszUmowe = async () => {
     if (!umowaData) return;
@@ -63,7 +115,6 @@ export default function FormularzPelnejUmowy({
     error: errorZmiany,
   } = useZmianyForm(zmiany, umowa.id);
 
-  // Logowanie zawartości zmian i zamówień do konsoli
   useEffect(() => {
     console.log("Zawartość zmian:", zmianyForm);
     console.log("Zawartość zamówień:", zamowienia);
@@ -77,6 +128,7 @@ export default function FormularzPelnejUmowy({
   return (
     <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
       <FormularzDaneUmowy umowa={umowa} onChange={setUmowaData} />
+
       <button
         type="button"
         onClick={handleZapiszUmowe}
@@ -90,6 +142,11 @@ export default function FormularzPelnejUmowy({
         onChange={handleZmianaChange}
         onDelete={handleZmianaDelete}
         onAdd={handleZmianaAdd}
+        kategorie={kategorie}
+        wlasciciele={wlasciciele}
+        statusy={statusy}
+        klasyfikacje={klasyfikacje}
+        obszary={obszary}
       />
 
       {errorZmiany && <div className="text-red-600">{errorZmiany}</div>}

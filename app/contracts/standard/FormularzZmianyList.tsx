@@ -1,13 +1,27 @@
 "use client";
 
 import FormularzZmiana from "./FormularzZmiana";
-import { ZmianaUmowaDoForm } from "@/app/contracts/grid/types";
+import {
+  ZmianaUmowaDoForm,
+  SlownikKategoriaUmowy,
+  SlownikWlasciciel,
+  SlownikStatusUmowy,
+  SlownikKlasyfikacjaUmowy,
+  SlownikObszarFunkcjonalny,
+} from "@/app/contracts/grid/types";
 
 type Props = {
   zmiany: ZmianaUmowaDoForm[];
   onChange: (index: number, updated: ZmianaUmowaDoForm) => void;
   onDelete: (index: number) => void;
   onAdd: () => void;
+
+  // nowe propsy
+  kategorie: SlownikKategoriaUmowy[];
+  wlasciciele: SlownikWlasciciel[];
+  statusy: SlownikStatusUmowy[];
+  klasyfikacje: SlownikKlasyfikacjaUmowy[];
+  obszary: SlownikObszarFunkcjonalny[];
 };
 
 export default function FormularzZmianyList({
@@ -15,6 +29,11 @@ export default function FormularzZmianyList({
   onChange,
   onDelete,
   onAdd,
+  kategorie,
+  wlasciciele,
+  statusy,
+  klasyfikacje,
+  obszary,
 }: Props) {
   return (
     <div className="space-y-4 mt-8">
@@ -27,6 +46,11 @@ export default function FormularzZmianyList({
           zmiana={zm}
           onChange={onChange}
           onDelete={onDelete}
+          kategorie={kategorie}
+          wlasciciele={wlasciciele}
+          statusy={statusy}
+          klasyfikacje={klasyfikacje}
+          obszary={obszary}
         />
       ))}
 

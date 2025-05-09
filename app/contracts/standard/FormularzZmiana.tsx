@@ -1,12 +1,24 @@
 "use client";
 
-import { ZmianaUmowaDoForm } from "@/app/contracts/grid/types";
+import {
+  ZmianaUmowaDoForm,
+  SlownikKategoriaUmowy,
+  SlownikWlasciciel,
+  SlownikStatusUmowy,
+  SlownikKlasyfikacjaUmowy,
+  SlownikObszarFunkcjonalny,
+} from "@/app/contracts/grid/types";
 
 type Props = {
   index: number;
   zmiana: ZmianaUmowaDoForm;
   onChange: (index: number, updated: ZmianaUmowaDoForm) => void;
   onDelete: (index: number) => void;
+  kategorie: SlownikKategoriaUmowy[];
+  wlasciciele: SlownikWlasciciel[];
+  statusy: SlownikStatusUmowy[];
+  klasyfikacje: SlownikKlasyfikacjaUmowy[];
+  obszary: SlownikObszarFunkcjonalny[];
 };
 
 export default function FormularzZmiana({
@@ -14,6 +26,11 @@ export default function FormularzZmiana({
   zmiana,
   onChange,
   onDelete,
+  kategorie,
+  wlasciciele,
+  statusy,
+  klasyfikacje,
+  obszary,
 }: Props) {
   const isInvalid = {
     data_zawarcia: !zmiana.data_zawarcia,
@@ -29,11 +46,16 @@ export default function FormularzZmiana({
     const { name, value, type } = e.target;
     const newValue =
       type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    onChange(index, { ...zmiana, [name]: newValue });
+  };
 
-    onChange(index, {
-      ...zmiana,
-      [name]: newValue,
-    });
+  const handleMultiCheckboxChange = (id: number) => {
+    const aktualne = zmiana.obszary_funkcjonalne_ids ?? [];
+    const isSelected = aktualne.includes(id);
+    const nowe = isSelected
+      ? aktualne.filter((x) => x !== id)
+      : [...aktualne, id];
+    onChange(index, { ...zmiana, obszary_funkcjonalne_ids: nowe });
   };
 
   return (
@@ -208,6 +230,93 @@ export default function FormularzZmiana({
           onChange={handleChange}
           className="border rounded px-2 py-1"
         />
+      </div>
+
+      {/* Słowniki */}
+      <div>
+        <label className="block font-medium">Kategoria</label>
+        <select
+          name="kategoria_id"
+          value={zmiana.kategoria_id ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        >
+          <option value="">-- wybierz --</option>
+          {kategorie.map((k) => (
+            <option key={k.id} value={k.id}>
+              {k.nazwa}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Właściciel</label>
+        <select
+          name="wlasciciel_id"
+          value={zmiana.wlasciciel_id ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        >
+          <option value="">-- wybierz --</option>
+          {wlasciciele.map((w) => (
+            <option key={w.id} value={w.id}>
+              {w.nazwa}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Status</label>
+        <select
+          name="status_id"
+          value={zmiana.status_id ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        >
+          <option value="">-- wybierz --</option>
+          {statusy.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.nazwa}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Klasyfikacja</label>
+        <select
+          name="klasyfikacja_id"
+          value={zmiana.klasyfikacja_id ?? ""}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full"
+        >
+          <option value="">-- wybierz --</option>
+          {klasyfikacje.map((k) => (
+            <option key={k.id} value={k.id}>
+              {k.nazwa}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Obszary funkcjonalne</label>
+        <div className="space-y-1">
+          {obszary.map((o) => (
+            <label key={o.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={
+                  zmiana.obszary_funkcjonalne_ids?.includes(o.id) || false
+                }
+                onChange={() => handleMultiCheckboxChange(o.id)}
+              />
+              {o.nazwa}
+            </label>
+          ))}
+        </div>
       </div>
 
       <button
