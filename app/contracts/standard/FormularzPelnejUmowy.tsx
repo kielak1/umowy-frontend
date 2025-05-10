@@ -50,7 +50,6 @@ export default function FormularzPelnejUmowy({
     handleZmianaDelete,
     handleZmianaAdd,
     zapiszZmiany,
-    loading: loadingZmiany,
     error: errorZmiany,
   } = useZmianyForm(zmiany, umowa.id);
 
