@@ -1,30 +1,29 @@
 "use client";
 
-import { useZamowieniaForm } from "./useZamowieniaForm";
 import FormularzZamowienie from "./FormularzZamowienie";
-import { Zamowienie } from "@/app/contracts/grid/types";
+import { ZamowienieDoForm } from "@/app/contracts/grid/types";
 
 type Props = {
-  zamowienia: Zamowienie[];
-  umowaId: number;
+  zamowienia: ZamowienieDoForm[];
+  onChange: (index: number, updated: ZamowienieDoForm) => void;
+  onDelete: (index: number) => void;
+  onAdd: () => void;
+  onSave: () => Promise<boolean>;
+  loading: boolean;
+  error: string | null;
 };
 
 export default function FormularzZamowieniaList({
   zamowienia,
-  umowaId,
+  onChange,
+  onDelete,
+  onAdd,
+  onSave,
+  loading,
+  error,
 }: Props) {
-  const {
-    zamowienia: zamowieniaForm,
-    handleZamowienieAdd,
-    handleZamowienieChange,
-    handleZamowienieDelete,
-    zapiszZamowienia,
-    loading,
-    error,
-  } = useZamowieniaForm(zamowienia, umowaId);
-
   const handleZapisz = async () => {
-    const ok = await zapiszZamowienia();
+    const ok = await onSave();
     if (ok) alert("Zapisano zamówienia");
   };
 
@@ -32,19 +31,19 @@ export default function FormularzZamowieniaList({
     <div className="space-y-4 mt-8">
       <h2 className="text-lg font-semibold">Zamówienia</h2>
 
-      {zamowieniaForm.map((zam, idx) => (
+      {zamowienia.map((zam, idx) => (
         <FormularzZamowienie
           key={zam.id ?? `nowe-${idx}`}
           index={idx}
           zamowienie={zam}
-          onChange={handleZamowienieChange}
-          onDelete={handleZamowienieDelete}
+          onChange={onChange}
+          onDelete={onDelete}
         />
       ))}
 
       <button
         type="button"
-        onClick={handleZamowienieAdd}
+        onClick={onAdd}
         className="text-blue-600 underline text-sm"
       >
         + Dodaj zamówienie
