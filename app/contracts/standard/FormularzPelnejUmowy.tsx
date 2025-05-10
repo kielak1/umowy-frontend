@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // dodaj na górze pliku
 import {
   Umowa,
   ZmianaUmowy,
@@ -77,6 +78,31 @@ export default function FormularzPelnejUmowy({
     fetchSlowniki();
   }, []);
 
+  // ...
+
+  const router = useRouter();
+
+  const handleUsunUmowe = async () => {
+    const potwierdzenie = confirm("Czy na pewno chcesz usunąć tę umowę?");
+    if (!potwierdzenie) return;
+
+    try {
+      const res = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/umowy/${umowa.id}/`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!res.ok) throw new Error("Błąd usuwania umowy");
+
+      alert("Umowa została usunięta.");
+      router.push("/contracts");
+    } catch (err) {
+      console.error(err);
+      alert("Błąd podczas usuwania umowy");
+    }
+  };
+
   const handleZapiszUmowe = async () => {
     if (!umowaData) return;
     const payload = {
@@ -130,13 +156,22 @@ export default function FormularzPelnejUmowy({
     <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
       <FormularzDaneUmowy umowa={umowa} onChange={setUmowaData} />
 
-      <button
-        type="button"
-        onClick={handleZapiszUmowe}
-        className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
-        Zapisz dane umowy
-      </button>
+      <div className="mt-2 flex gap-4">
+        <button
+          type="button"
+          onClick={handleZapiszUmowe}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Zapisz dane umowy
+        </button>
+        <button
+          type="button"
+          onClick={handleUsunUmowe}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Usuń umowę
+        </button>
+      </div>
 
       <FormularzZmianyList
         zmiany={zmianyForm}
