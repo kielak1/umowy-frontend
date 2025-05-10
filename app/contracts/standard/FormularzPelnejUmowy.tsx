@@ -173,7 +173,7 @@ export default function FormularzPelnejUmowy({
           onClick={handleUsunUmowe}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          Usuń umowę
+          Usuń wszystko
         </button>
       </div>
 
@@ -196,7 +196,6 @@ export default function FormularzPelnejUmowy({
         onChange={handleZamowienieChange}
         onDelete={handleZamowienieDelete}
         onAdd={handleZamowienieAdd}
-        onSave={zapiszZamowienia}
         loading={loadingZamowienia}
         error={errorZamowienia}
       />
