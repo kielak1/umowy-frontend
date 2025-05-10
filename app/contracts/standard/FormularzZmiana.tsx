@@ -72,91 +72,85 @@ export default function FormularzZmiana({
   };
 
   return (
-    <fieldset className="border p-4 rounded space-y-2">
+    <fieldset className="border p-4 rounded space-y-4">
       <legend className="font-semibold">Zmiana #{index + 1}</legend>
 
+      {/* 👉 Pierwszy wiersz: Rodzaj, Kwota, Waluta, Status */}
+      <div className="flex flex-wrap gap-4">
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Rodzaj</label>
+          <select
+            name="rodzaj"
+            value={zmiana.rodzaj}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="umowa">Umowa</option>
+            <option value="aneks">Aneks</option>
+            <option value="porozumienie">Porozumienie</option>
+            <option value="inne">Inna zmiana</option>
+          </select>
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Kwota netto</label>
+          <input
+            type="number"
+            name="kwota_netto"
+            value={zmiana.kwota_netto ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          />
+          {isInvalid.kwota_netto && (
+            <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Waluta</label>
+          <select
+            name="waluta"
+            value={zmiana.waluta}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="PLN">PLN</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Status</label>
+          <select
+            name="status_id"
+            value={zmiana.status_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {statusy.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.nazwa}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 👉 Drugi wiersz: Przedmiot */}
       <div>
-        <label className="block font-medium">Rodzaj</label>
-        <select
-          name="rodzaj"
-          value={zmiana.rodzaj}
+        <label className="block font-medium">Przedmiot</label>
+        <input
+          type="text"
+          name="przedmiot"
+          value={zmiana.przedmiot ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full"
-        >
-          <option value="umowa">Umowa</option>
-          <option value="aneks">Aneks</option>
-          <option value="porozumienie">Porozumienie</option>
-          <option value="inne">Inna zmiana</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block font-medium">Data zawarcia</label>
-        <input
-          type="date"
-          name="data_zawarcia"
-          value={zmiana.data_zawarcia ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-        {isInvalid.data_zawarcia && (
-          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block font-medium">Data obowiązywania od</label>
-        <input
-          type="date"
-          name="data_obowiazywania_od"
-          value={zmiana.data_obowiazywania_od ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-        {isInvalid.data_obowiazywania_od && (
-          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block font-medium">Data obowiązywania do</label>
-        <input
-          type="date"
-          name="data_obowiazywania_do"
-          value={zmiana.data_obowiazywania_do ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
         />
       </div>
 
-      <div>
-        <label className="block font-medium">Kwota netto</label>
-        <input
-          type="number"
-          name="kwota_netto"
-          value={zmiana.kwota_netto ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-        {isInvalid.kwota_netto && (
-          <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block font-medium">Waluta</label>
-        <select
-          name="waluta"
-          value={zmiana.waluta}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        >
-          <option value="PLN">PLN</option>
-          <option value="EUR">EUR</option>
-          <option value="USD">USD</option>
-        </select>
-      </div>
-
+      {/* 👉 Trzeci wiersz: Opis */}
       <div>
         <label className="block font-medium">Opis</label>
         <textarea
@@ -167,23 +161,38 @@ export default function FormularzZmiana({
         />
       </div>
 
+      {/* 👉 Czwarty wiersz: Daty (bez daty wypowiedzenia) */}
+      <div className="flex flex-wrap gap-4">
+        {[
+          ["data_zawarcia", "Data zawarcia"],
+          ["data_obowiazywania_od", "Data obowiązywania od"],
+          ["data_obowiazywania_do", "Data obowiązywania do"],
+          ["data_podpisania", "Data podpisania"],
+          ["finansowanie_do", "Finansowanie do"],
+        ].map(([name, label]) => (
+          <div key={name} className="flex-1 min-w-[200px]">
+            <label className="block font-medium">{label}</label>
+            <input
+              type="date"
+              name={name}
+              value={(zmiana as any)[name] ?? ""}
+              onChange={handleChange}
+              className="border rounded px-2 py-1 w-full"
+            />
+            {isInvalid[name as keyof typeof isInvalid] && (
+              <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 🟡 Pozostałe pola pozostają bez zmian */}
       <div>
         <label className="block font-medium">Numer umowy dostawcy</label>
         <input
           type="text"
           name="numer_umowy_dostawcy"
           value={zmiana.numer_umowy_dostawcy ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium">Przedmiot</label>
-        <input
-          type="text"
-          name="przedmiot"
-          value={zmiana.przedmiot ?? ""}
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full"
         />
@@ -201,28 +210,6 @@ export default function FormularzZmiana({
       </div>
 
       <div>
-        <label className="block font-medium">Data podpisania</label>
-        <input
-          type="date"
-          name="data_podpisania"
-          value={zmiana.data_podpisania ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium">Data wypowiedzenia</label>
-        <input
-          type="date"
-          name="data_wypowiedzenia"
-          value={zmiana.data_wypowiedzenia ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-      </div>
-
-      <div>
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -234,18 +221,7 @@ export default function FormularzZmiana({
         </label>
       </div>
 
-      <div>
-        <label className="block font-medium">Finansowanie do</label>
-        <input
-          type="date"
-          name="finansowanie_do"
-          value={zmiana.finansowanie_do ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
-        />
-      </div>
-
-      {/* Słowniki */}
+      {/* 🔽 Słowniki */}
       <div>
         <label className="block font-medium">Kategoria</label>
         <select
@@ -275,23 +251,6 @@ export default function FormularzZmiana({
           {wlasciciele.map((w) => (
             <option key={w.id} value={w.id}>
               {w.nazwa}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block font-medium">Status</label>
-        <select
-          name="status_id"
-          value={zmiana.status_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        >
-          <option value="">-- wybierz --</option>
-          {statusy.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.nazwa}
             </option>
           ))}
         </select>
