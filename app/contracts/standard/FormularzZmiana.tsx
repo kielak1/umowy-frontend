@@ -173,6 +173,7 @@ export default function FormularzZmiana({
       </div>
 
       {/* 👉 Wiersz 4 */}
+
       <div className="flex flex-wrap gap-4">
         {polaDat.map(({ name, label }) => (
           <div key={name} className="flex-1 min-w-[200px]">
@@ -180,13 +181,15 @@ export default function FormularzZmiana({
             <input
               type="date"
               name={name}
-              value={zmiana[name] ?? ""}
+              value={typeof zmiana[name] === "string" ? zmiana[name] : ""}
               onChange={handleChange}
               className="border rounded px-2 py-1 w-full"
             />
-            {isInvalid[name] && (
+            {(name === "data_zawarcia" && !zmiana.data_zawarcia) ||
+            (name === "data_obowiazywania_od" &&
+              !zmiana.data_obowiazywania_od) ? (
               <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
-            )}
+            ) : null}
           </div>
         ))}
       </div>
