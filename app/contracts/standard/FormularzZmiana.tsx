@@ -186,16 +186,41 @@ export default function FormularzZmiana({
         ))}
       </div>
 
-      {/* 🟡 Pozostałe pola pozostają bez zmian */}
-      <div>
-        <label className="block font-medium">Numer umowy dostawcy</label>
-        <input
-          type="text"
-          name="numer_umowy_dostawcy"
-          value={zmiana.numer_umowy_dostawcy ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        />
+      <div className="flex flex-wrap gap-4 items-end">
+        <div className="flex-[2] min-w-[250px]">
+          <label className="block font-medium">Numer umowy dostawcy</label>
+          <input
+            type="text"
+            name="numer_umowy_dostawcy"
+            value={zmiana.numer_umowy_dostawcy ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          />
+        </div>
+
+        <div className="flex-1 min-w-[150px]">
+          <label className="block font-medium invisible">Ukryj etykietę</label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="trzeba_wypowiedziec"
+              checked={zmiana.trzeba_wypowiedziec}
+              onChange={handleChange}
+            />
+            Trzeba wypowiedzieć
+          </label>
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Data wypowiedzenia</label>
+          <input
+            type="date"
+            name="data_wypowiedzenia"
+            value={zmiana.data_wypowiedzenia ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          />
+        </div>
       </div>
 
       <div>
@@ -209,73 +234,62 @@ export default function FormularzZmiana({
         />
       </div>
 
-      <div>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="trzeba_wypowiedziec"
-            checked={zmiana.trzeba_wypowiedziec}
+      <div className="flex flex-wrap gap-4">
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Kategoria</label>
+          <select
+            name="kategoria_id"
+            value={zmiana.kategoria_id ?? ""}
             onChange={handleChange}
-          />
-          Trzeba wypowiedzieć
-        </label>
-      </div>
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {kategorie.map((k) => (
+              <option key={k.id} value={k.id}>
+                {k.nazwa}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* 🔽 Słowniki */}
-      <div>
-        <label className="block font-medium">Kategoria</label>
-        <select
-          name="kategoria_id"
-          value={zmiana.kategoria_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        >
-          <option value="">-- wybierz --</option>
-          {kategorie.map((k) => (
-            <option key={k.id} value={k.id}>
-              {k.nazwa}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Właściciel</label>
+          <select
+            name="wlasciciel_id"
+            value={zmiana.wlasciciel_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {wlasciciele.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.nazwa}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div>
-        <label className="block font-medium">Właściciel</label>
-        <select
-          name="wlasciciel_id"
-          value={zmiana.wlasciciel_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        >
-          <option value="">-- wybierz --</option>
-          {wlasciciele.map((w) => (
-            <option key={w.id} value={w.id}>
-              {w.nazwa}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block font-medium">Klasyfikacja</label>
-        <select
-          name="klasyfikacja_id"
-          value={zmiana.klasyfikacja_id ?? ""}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-        >
-          <option value="">-- wybierz --</option>
-          {klasyfikacje.map((k) => (
-            <option key={k.id} value={k.id}>
-              {k.nazwa}
-            </option>
-          ))}
-        </select>
+        <div className="flex-1 min-w-[200px]">
+          <label className="block font-medium">Klasyfikacja</label>
+          <select
+            name="klasyfikacja_id"
+            value={zmiana.klasyfikacja_id ?? ""}
+            onChange={handleChange}
+            className="border rounded px-2 py-1 w-full"
+          >
+            <option value="">-- wybierz --</option>
+            {klasyfikacje.map((k) => (
+              <option key={k.id} value={k.id}>
+                {k.nazwa}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div>
-        <label className="block font-medium">Obszary funkcjonalne</label>
-        <div className="space-y-1">
+        <label className="block font-medium mb-1">Obszary funkcjonalne</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2">
           {obszary.map((o) => (
             <label key={o.id} className="flex items-center gap-2">
               <input
