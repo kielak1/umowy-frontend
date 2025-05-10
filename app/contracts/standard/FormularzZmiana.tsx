@@ -38,6 +38,17 @@ export default function FormularzZmiana({
     kwota_netto: zmiana.kwota_netto === null || zmiana.kwota_netto === "",
   };
 
+  const polaDat: {
+    name: keyof ZmianaUmowaDoForm;
+    label: string;
+  }[] = [
+    { name: "data_zawarcia", label: "Data zawarcia" },
+    { name: "data_obowiazywania_od", label: "Data obowiązywania od" },
+    { name: "data_obowiazywania_do", label: "Data obowiązywania do" },
+    { name: "data_podpisania", label: "Data podpisania" },
+    { name: "finansowanie_do", label: "Finansowanie do" },
+  ];
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -75,7 +86,7 @@ export default function FormularzZmiana({
     <fieldset className="border p-4 rounded space-y-4">
       <legend className="font-semibold">Zmiana #{index + 1}</legend>
 
-      {/* 👉 Pierwszy wiersz: Rodzaj, Kwota, Waluta, Status */}
+      {/* 👉 Wiersz 1 */}
       <div className="flex flex-wrap gap-4">
         <div className="flex-1 min-w-[200px]">
           <label className="block font-medium">Rodzaj</label>
@@ -138,7 +149,7 @@ export default function FormularzZmiana({
         </div>
       </div>
 
-      {/* 👉 Drugi wiersz: Przedmiot */}
+      {/* 👉 Wiersz 2 */}
       <div>
         <label className="block font-medium">Przedmiot</label>
         <input
@@ -150,7 +161,7 @@ export default function FormularzZmiana({
         />
       </div>
 
-      {/* 👉 Trzeci wiersz: Opis */}
+      {/* 👉 Wiersz 3 */}
       <div>
         <label className="block font-medium">Opis</label>
         <textarea
@@ -161,31 +172,26 @@ export default function FormularzZmiana({
         />
       </div>
 
-      {/* 👉 Czwarty wiersz: Daty (bez daty wypowiedzenia) */}
+      {/* 👉 Wiersz 4 */}
       <div className="flex flex-wrap gap-4">
-        {[
-          ["data_zawarcia", "Data zawarcia"],
-          ["data_obowiazywania_od", "Data obowiązywania od"],
-          ["data_obowiazywania_do", "Data obowiązywania do"],
-          ["data_podpisania", "Data podpisania"],
-          ["finansowanie_do", "Finansowanie do"],
-        ].map(([name, label]) => (
+        {polaDat.map(({ name, label }) => (
           <div key={name} className="flex-1 min-w-[200px]">
             <label className="block font-medium">{label}</label>
             <input
               type="date"
               name={name}
-              value={(zmiana as any)[name] ?? ""}
+              value={zmiana[name] ?? ""}
               onChange={handleChange}
               className="border rounded px-2 py-1 w-full"
             />
-            {isInvalid[name as keyof typeof isInvalid] && (
+            {isInvalid[name] && (
               <p className="text-red-600 text-sm mt-1">To pole jest wymagane</p>
             )}
           </div>
         ))}
       </div>
 
+      {/* 👉 Wiersz 5 */}
       <div className="flex flex-wrap gap-4 items-end">
         <div className="flex-[2] min-w-[250px]">
           <label className="block font-medium">Numer umowy dostawcy</label>
@@ -223,6 +229,7 @@ export default function FormularzZmiana({
         </div>
       </div>
 
+      {/* 👉 Wiersz 6 */}
       <div>
         <label className="block font-medium">Producenci</label>
         <input
@@ -234,6 +241,7 @@ export default function FormularzZmiana({
         />
       </div>
 
+      {/* 👉 Wiersz 7 */}
       <div className="flex flex-wrap gap-4">
         <div className="flex-1 min-w-[200px]">
           <label className="block font-medium">Kategoria</label>
@@ -287,6 +295,7 @@ export default function FormularzZmiana({
         </div>
       </div>
 
+      {/* 👉 Wiersz 8 */}
       <div>
         <label className="block font-medium mb-1">Obszary funkcjonalne</label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2">
@@ -305,6 +314,7 @@ export default function FormularzZmiana({
         </div>
       </div>
 
+      {/* 🔘 Usuń */}
       <button
         type="button"
         onClick={() => onDelete(index)}
