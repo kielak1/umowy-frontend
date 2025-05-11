@@ -139,34 +139,28 @@ export const buildColDefs = ({
     minWidth: 140,
     maxWidth: 140,
     flex: 0,
+    editable: true,
   },
 
   {
-    headerName: "Kwota netto",
-    field: "najnowsza_zmiana.kwota_netto",
-    filter: "agNumberColumnFilter",
-    width: 130,
-    minWidth: 130,
-    maxWidth: 130,
-    flex: 0,
-    valueFormatter: (params) => {
-      const value = Number(params.value);
-      return !isNaN(value)
-        ? value.toLocaleString("pl-PL", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : "";
-    },
-    cellStyle: { textAlign: "right" },
-  },
-  {
-    headerName: "$",
+    headerName: "Waluta",
     field: "najnowsza_zmiana.waluta",
-    filter: "agTextColumnFilter",
-    width: 59,
-    minWidth: 59,
-    maxWidth: 59,
+    editable: true,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: ["PLN", "EUR", "USD"], // <- zgodnie z choices
+    },
+    valueFormatter: (params) => {
+      const map: Record<string, string> = {
+        PLN: "PLN",
+        EUR: "EUR",
+        USD: "USD",
+      };
+      return map[params.value] ?? params.value ?? "";
+    },
+    width: 100,
+    minWidth: 100,
+    maxWidth: 100,
     flex: 0,
   },
 
