@@ -18,14 +18,24 @@ import {
 } from "ag-grid-community";
 import { buildColDefs } from "./grid/columns";
 import { useContractsGridData } from "./grid/useUmowyData";
-import { Umowa, SlownikStatusUmowy } from "./grid/types";
+import {
+  Umowa,
+  SlownikStatusUmowy,
+  Kontrahent,
+  User,
+  OrganizationalUnit,
+} from "./grid/types";
 import { useSlownik } from "./hooks/useSlownik";
 
 export default function Home() {
   const [rowData, setRowData] = useState<Umowa[]>([]);
   const { onCellValueChanged, getRowHeight } = useContractsGridData(setRowData);
+
   const { data: statusy } =
     useSlownik<SlownikStatusUmowy>("slownikstatusumowy");
+  const { data: kontrahenci } = useSlownik<Kontrahent>("kontrahenci");
+  const { data: uzytkownicy } = useSlownik<User>("users");
+  const { data: jednostki } = useSlownik<OrganizationalUnit>("orgunits");
 
   return (
     <div className="p-4">
@@ -49,7 +59,13 @@ export default function Home() {
             CellStyleModule,
           ]}
           rowData={rowData}
-          columnDefs={buildColDefs({ setRowData, statusy })}
+          columnDefs={buildColDefs({
+            setRowData,
+            statusy,
+            kontrahenci,
+            uzytkownicy,
+            jednostki,
+          })}
           defaultColDef={{
             flex: 1,
             minWidth: 120,

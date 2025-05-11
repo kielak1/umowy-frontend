@@ -10,7 +10,12 @@ import UmowaDetails from "../UmowaDetails";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import type { SlownikStatusUmowy } from "./types";
+import type {
+  SlownikStatusUmowy,
+  Kontrahent,
+  User,
+  OrganizationalUnit,
+} from "./types";
 
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
@@ -28,11 +33,17 @@ const getSzczegolyCellStyle = (
 type BuildColDefsParams = {
   setRowData: React.Dispatch<React.SetStateAction<UmowaWithExpanded[]>>;
   statusy: SlownikStatusUmowy[];
+  kontrahenci: Kontrahent[];
+  uzytkownicy: User[];
+  jednostki: OrganizationalUnit[];
 };
 
 export const buildColDefs = ({
   setRowData,
   statusy,
+  kontrahenci,
+  uzytkownicy,
+  jednostki,
 }: BuildColDefsParams): ColDef<UmowaWithExpanded>[] => [
   {
     headerName: "",
@@ -141,29 +152,21 @@ export const buildColDefs = ({
     flex: 0,
     editable: true,
   },
-
   {
     headerName: "Waluta",
     field: "najnowsza_zmiana.waluta",
     editable: true,
     cellEditor: "agSelectCellEditor",
     cellEditorParams: {
-      values: ["PLN", "EUR", "USD"], // <- zgodnie z choices
+      values: ["PLN", "EUR", "USD"],
     },
-    valueFormatter: (params) => {
-      const map: Record<string, string> = {
-        PLN: "PLN",
-        EUR: "EUR",
-        USD: "USD",
-      };
-      return map[params.value] ?? params.value ?? "";
-    },
+    keyCreator: (params) => params.value,
+    valueFormatter: (params) => params.value,
     width: 100,
     minWidth: 100,
     maxWidth: 100,
     flex: 0,
   },
-
   {
     headerName: "Ramowa",
     field: "czy_ramowa",
@@ -174,7 +177,6 @@ export const buildColDefs = ({
     flex: 0,
     headerClass: "tw-rotate-header",
   },
-
   {
     headerName: "Fix",
     field: "czy_dotyczy_konkretnych_uslug",
@@ -207,7 +209,7 @@ export const buildColDefs = ({
   },
   {
     headerName: "Data kontynuacji",
-    field: "najnowsza_zmiana.data_zawarcia",
+    field: "wymagana_data_kontynuacji",
     filter: "agDateColumnFilter",
     width: 140,
     minWidth: 140,
@@ -218,17 +220,44 @@ export const buildColDefs = ({
 
   {
     headerName: "Kontrahent",
-    field: "kontrahent.nazwa",
-    filter: "agTextColumnFilter",
+    field: "kontrahent.id",
+    editable: true,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: kontrahenci.map((k) => k.id), // ✅ number[]
+    },
+    valueFormatter: (params) => {
+      const id = params.value;
+      const match = kontrahenci.find((k) => k.id === id);
+      return match?.nazwa ?? "";
+    },
   },
   {
     headerName: "Opiekun",
-    field: "opiekun.username",
-    filter: "agTextColumnFilter",
+    field: "opiekun.id",
+    editable: true,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: uzytkownicy.map((u) => u.id), // ✅ number[]
+    },
+    valueFormatter: (params) => {
+      const id = params.value;
+      const match = uzytkownicy.find((u) => u.id === id);
+      return match?.username ?? "";
+    },
   },
   {
     headerName: "Jednostka",
-    field: "jednostka_organizacyjna.name",
-    filter: "agTextColumnFilter",
+    field: "jednostka_organizacyjna.id",
+    editable: true,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: jednostki.map((j) => j.id), // ✅ number[]
+    },
+    valueFormatter: (params) => {
+      const id = params.value;
+      const match = jednostki.find((j) => j.id === id);
+      return match?.name ?? "";
+    },
   },
 ];

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { CellValueChangedEvent, RowHeightParams } from "ag-grid-community";
-import { Umowa } from "./types";
+import { Umowa, ZmianaUmowy } from "./types";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export function useContractsGridData(
@@ -13,8 +13,8 @@ export function useContractsGridData(
   const fetchData = useCallback(() => {
     fetchWithAuth(apiUrl)
       .then((res) => res.json())
-      .then((data) =>
-        setRowData(data.map((row: Umowa) => ({ ...row, _expanded: false })))
+      .then((data: Umowa[]) =>
+        setRowData(data.map((row) => ({ ...row, _expanded: false })))
       )
       .catch(console.error);
   }, [apiUrl, setRowData]);
@@ -25,55 +25,35 @@ export function useContractsGridData(
 
   const onCellValueChanged = useCallback(
     async (params: CellValueChangedEvent<Umowa>) => {
-      const { data, colDef } = params;
-      if (!data || data.id < 0) return;
+      const { data, colDef, newValue, oldValue } = params;
+      if (!data || data.id < 0 || !colDef.field) return;
+
+      console.log("🔄 onCellValueChanged fired:");
+      console.log("🧩 field:", colDef.field);
+      console.log("📤 newValue:", newValue, typeof newValue);
+      console.log("📥 oldValue:", oldValue, typeof oldValue);
+      console.log("🔢 data before patch:", data);
 
       const pole = colDef.field;
-      if (pole === "najnowsza_zmiana.status.id") {
-        const zmiana = data.najnowsza_zmiana;
-        if (!zmiana || !zmiana.id) return;
 
-        const payload = { status_id: Number(params.newValue) }; // upewniamy się, że to number
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${zmiana.id}/`;
-
-        console.log("📤 PATCH status →", url);
-        console.log("📤 Payload:", payload);
-
-        try {
-          const res = await fetchWithAuth(url, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (!res.ok) {
-            const body = await res.text();
-            console.error("❌ Błąd odpowiedzi backendu:", body);
-            alert("Błąd backendu: nie udało się zapisać pola status");
-          } else {
-            console.log("✅ Zaktualizowano status");
-            fetchData(); // odśwież dane z backendu
-          }
-        } catch (err) {
-          console.error("❌ Błąd zapisu status:", err);
-          alert("Błąd podczas zapisu pola status");
-          fetchData();
-        }
-
-        return;
-      }
-
-      if (pole?.startsWith("najnowsza_zmiana.")) {
-        const subField = pole.split(".")[1];
+      if (pole.startsWith("najnowsza_zmiana.")) {
         const zmiana = data.najnowsza_zmiana;
         if (!zmiana || !zmiana.id) {
-          console.warn("Brak identyfikatora najnowszej zmiany – nie zapisuję");
+          console.warn("Brak identyfikatora zmiany – nie zapisuję");
           return;
         }
 
-        const payload = { [subField]: zmiana[subField as keyof typeof zmiana] };
+        const subField = pole.split(".")[1] as keyof ZmianaUmowy;
+        const payload: Partial<Record<string, unknown>> = {};
+
+        if (pole === "najnowsza_zmiana.status.id") {
+          payload["status_id"] = Number(newValue);
+        } else {
+          payload[subField] = zmiana[subField];
+        }
+
         try {
-          await fetchWithAuth(
+          const res = await fetchWithAuth(
             `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${zmiana.id}/`,
             {
               method: "PATCH",
@@ -81,24 +61,60 @@ export function useContractsGridData(
               body: JSON.stringify(payload),
             }
           );
+
+          if (!res.ok) {
+            const body = await res.text();
+            console.error("❌ Błąd zapisu zmiany:", body);
+            alert("Błąd zapisu pola zmiany");
+          } else {
+            fetchData();
+          }
         } catch (err) {
-          console.error("Błąd zapisu zmiany:", err);
-          alert("Błąd podczas zapisu pola zmiany");
-          fetchData(); // odśwież dane
+          console.error("❌ Błąd zapisu zmiany:", err);
+          fetchData();
         }
+
         return;
       }
 
-      // standardowy zapis umowy
+      // 📄 przypadek: dane główne umowy (w tym słownikowe)
+      const payload: Partial<{
+        kontrahent_id: number;
+        opiekun_id: number;
+        jednostka_organizacyjna_id: number;
+        [key: string]: string | number | boolean | null | undefined;
+      }> = {};
+
+      switch (pole) {
+        case "kontrahent.id":
+          payload["kontrahent_id"] = Number(newValue);
+          break;
+        case "opiekun.id":
+          payload["opiekun_id"] = Number(newValue);
+          break;
+        case "jednostka_organizacyjna.id":
+          payload["jednostka_organizacyjna_id"] = Number(newValue);
+          break;
+        default:
+          payload[pole] = (data as any)[pole]; // tutaj już bezpiecznie – pole to zwykłe pole typu string, np. "numer"
+      }
+
       try {
-        await fetchWithAuth(`${apiUrl}${data.id}/`, {
-          method: "PUT",
+        const res = await fetchWithAuth(`${apiUrl}${data.id}/`, {
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         });
+
+        if (!res.ok) {
+          const body = await res.text();
+          console.error("❌ Błąd zapisu umowy:", body);
+          alert("Błąd zapisu danych umowy");
+        } else {
+          fetchData();
+        }
       } catch (err) {
-        console.error(err);
-        alert("Wystąpił błąd podczas zapisywania");
+        console.error("❌ Błąd zapisu umowy:", err);
         fetchData();
       }
     },
