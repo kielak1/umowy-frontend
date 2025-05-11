@@ -28,14 +28,15 @@ export function useContractsGridData(
       const { data, colDef, newValue, oldValue } = params;
       if (!data || data.id < 0 || !colDef.field) return;
 
+      const pole = colDef.field;
+
       console.log("🔄 onCellValueChanged fired:");
-      console.log("🧩 field:", colDef.field);
+      console.log("🧩 field:", pole);
       console.log("📤 newValue:", newValue, typeof newValue);
       console.log("📥 oldValue:", oldValue, typeof oldValue);
       console.log("🔢 data before patch:", data);
 
-      const pole = colDef.field;
-
+      // 🔁 przypadek: zmiana
       if (pole.startsWith("najnowsza_zmiana.")) {
         const zmiana = data.najnowsza_zmiana;
         if (!zmiana || !zmiana.id) {
@@ -78,25 +79,32 @@ export function useContractsGridData(
       }
 
       // 📄 przypadek: dane główne umowy (w tym słownikowe)
-      const payload: Partial<{
-        kontrahent_id: number;
-        opiekun_id: number;
-        jednostka_organizacyjna_id: number;
-        [key: string]: string | number | boolean | null | undefined;
-      }> = {};
+      const payload: Partial<Umowa> & {
+        kontrahent_id?: number;
+        opiekun_id?: number;
+        jednostka_organizacyjna_id?: number;
+      } = {};
 
       switch (pole) {
         case "kontrahent.id":
-          payload["kontrahent_id"] = Number(newValue);
+          payload.kontrahent_id = Number(newValue);
           break;
         case "opiekun.id":
-          payload["opiekun_id"] = Number(newValue);
+          payload.opiekun_id = Number(newValue);
           break;
         case "jednostka_organizacyjna.id":
-          payload["jednostka_organizacyjna_id"] = Number(newValue);
+          payload.jednostka_organizacyjna_id = Number(newValue);
           break;
         default:
-          payload[pole] = (data as any)[pole]; // tutaj już bezpiecznie – pole to zwykłe pole typu string, np. "numer"
+          if (Object.prototype.hasOwnProperty.call(data, pole)) {
+            const klucz = pole as keyof Umowa;
+            const wartosc = data[klucz];
+
+            // ⛔ jeśli typeof wartosc === "function", odrzucamy
+            if (typeof wartosc !== "function") {
+              (payload as Record<keyof Umowa, unknown>)[klucz] = wartosc;
+            }
+          }
       }
 
       try {
