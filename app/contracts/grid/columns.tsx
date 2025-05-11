@@ -207,8 +207,12 @@ export const buildColDefs = ({
   },
   {
     headerName: "Data kontynuacji",
-    field: "wymagana_data_kontynuacji",
+    field: "najnowsza_zmiana.data_zawarcia",
     filter: "agDateColumnFilter",
+    width: 140,
+    minWidth: 140,
+    maxWidth: 140,
+    flex: 0,
     editable: true,
   },
 
