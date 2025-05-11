@@ -10,6 +10,7 @@ import UmowaDetails from "../UmowaDetails";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import type { SlownikStatusUmowy } from "./types";
 
 interface UmowaWithExpanded extends Umowa {
   _expanded?: boolean | "inline";
@@ -26,10 +27,12 @@ const getSzczegolyCellStyle = (
 
 type BuildColDefsParams = {
   setRowData: React.Dispatch<React.SetStateAction<UmowaWithExpanded[]>>;
+  statusy: SlownikStatusUmowy[];
 };
 
 export const buildColDefs = ({
   setRowData,
+  statusy,
 }: BuildColDefsParams): ColDef<UmowaWithExpanded>[] => [
   {
     headerName: "",
@@ -116,12 +119,17 @@ export const buildColDefs = ({
   },
   {
     headerName: "Status",
-    field: "najnowsza_zmiana.status",
-    filter: "agTextColumnFilter",
-    width: 140,
-    minWidth: 140,
-    maxWidth: 140,
-    flex: 0,
+    field: "najnowsza_zmiana.status.id",
+    editable: true,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: statusy.map((s) => s.id),
+    },
+    valueFormatter: (params) => {
+      const id = params.value?.toString();
+      const match = statusy.find((s) => s.id.toString() === id);
+      return match?.nazwa ?? "";
+    },
   },
   {
     headerName: "Data zawarcia",

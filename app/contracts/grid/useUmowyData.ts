@@ -29,6 +29,40 @@ export function useContractsGridData(
       if (!data || data.id < 0) return;
 
       const pole = colDef.field;
+      if (pole === "najnowsza_zmiana.status.id") {
+        const zmiana = data.najnowsza_zmiana;
+        if (!zmiana || !zmiana.id) return;
+
+        const payload = { status_id: Number(params.newValue) }; // upewniamy się, że to number
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${zmiana.id}/`;
+
+        console.log("📤 PATCH status →", url);
+        console.log("📤 Payload:", payload);
+
+        try {
+          const res = await fetchWithAuth(url, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) {
+            const body = await res.text();
+            console.error("❌ Błąd odpowiedzi backendu:", body);
+            alert("Błąd backendu: nie udało się zapisać pola status");
+          } else {
+            console.log("✅ Zaktualizowano status");
+            fetchData(); // odśwież dane z backendu
+          }
+        } catch (err) {
+          console.error("❌ Błąd zapisu status:", err);
+          alert("Błąd podczas zapisu pola status");
+          fetchData();
+        }
+
+        return;
+      }
+
       if (pole?.startsWith("najnowsza_zmiana.")) {
         const subField = pole.split(".")[1];
         const zmiana = data.najnowsza_zmiana;
