@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from "react";
 import { CellValueChangedEvent, RowHeightParams } from "ag-grid-community";
 import { Umowa } from "./types";
-import { fetchWithAuth } from "@/lib/fetchWithAuth"; 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export function useContractsGridData(
   setRowData: React.Dispatch<React.SetStateAction<Umowa[]>>
@@ -24,18 +24,49 @@ export function useContractsGridData(
   }, [fetchData]);
 
   const onCellValueChanged = useCallback(
-    (params: CellValueChangedEvent<Umowa>) => {
-      if (params.data.id < 0) return;
+    async (params: CellValueChangedEvent<Umowa>) => {
+      const { data, colDef } = params;
+      if (!data || data.id < 0) return;
 
-      fetchWithAuth(`${apiUrl}${params.data.id}/`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params.data),
-      }).catch((err) => {
+      const pole = colDef.field;
+      if (pole?.startsWith("najnowsza_zmiana.")) {
+        const subField = pole.split(".")[1];
+        const zmiana = data.najnowsza_zmiana;
+        if (!zmiana || !zmiana.id) {
+          console.warn("Brak identyfikatora najnowszej zmiany – nie zapisuję");
+          return;
+        }
+
+        const payload = { [subField]: zmiana[subField as keyof typeof zmiana] };
+        try {
+          await fetchWithAuth(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/zmiany/${zmiana.id}/`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            }
+          );
+        } catch (err) {
+          console.error("Błąd zapisu zmiany:", err);
+          alert("Błąd podczas zapisu pola zmiany");
+          fetchData(); // odśwież dane
+        }
+        return;
+      }
+
+      // standardowy zapis umowy
+      try {
+        await fetchWithAuth(`${apiUrl}${data.id}/`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      } catch (err) {
         console.error(err);
         alert("Wystąpił błąd podczas zapisywania");
         fetchData();
-      });
+      }
     },
     [apiUrl, fetchData]
   );

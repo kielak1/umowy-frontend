@@ -112,6 +112,7 @@ export const buildColDefs = ({
     headerName: "Przedmiot",
     field: "najnowsza_zmiana.przedmiot",
     filter: "agTextColumnFilter",
+    editable: true,
   },
   {
     headerName: "Status",
